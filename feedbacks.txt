@@ -1,0 +1,8 @@
+Plate_22_hcdc, 68F: Anti_toxin was missing
+
+____________
+
+Replacements
+
+starting_values -> good_guess
+predict_sim -> standard_curve_data

@@ -7,8 +7,8 @@ format:
 editor: source
 editor_options: 
   chunk_output_type: console
-bibliography: references.bib
-csl: the-american-naturalist.csl
+#bibliography: references.bib
+#csl: the-american-naturalist.csl
 ---
 
 ```{r include = FALSE}
@@ -29,6 +29,12 @@ knitr::opts_chunk$set(margin1    = TRUE,
 
 ## Parameters
 
+The concentration of the reference anti-toxin 10 IU/mL:
+
+```{r}
+ref_conc <- 10
+```
+
 The path to the data:
 
 ```{r}
@@ -37,12 +43,26 @@ path2data <- paste0(Sys.getenv("HOME"), "/Library/CloudStorage/",
                     "GitHub/choisy/tetanus/")
 ```
 
+The name of the data file:
+
+```{r include = FALSE}
+make_path <- function(x) paste0(path2data, "cache/", x)
+file_exists <- function(x) file.exists(make_path(x))
+readRDS3 <- function(x) readRDS(make_path(x))
+saveRDS2 <- function(object, file) saveRDS(object, make_path(file))
+```
+
+```{r}
+datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
+```
+
+
 ## Packages
 
 Required packages:
 
 ```{r}
-required_packages <- c("dplyr", "tibble")
+required_packages <- c("dplyr", "tibble", "readxl", "purrr", "mvtnorm")
 ```
 
 Installing those that are not installed:
@@ -56,13 +76,475 @@ Loading some for interactive use:
 
 ```{r message = FALSE}
 library(dplyr)
+library(purrr)
 ```
 
-## Functions
+## General functions
 
 Tuning some base functions:
 
 ```{r}
-readRDS2 <- function(f, ...) tibble::as_tibble(readRDS(paste0(path2data, f), ...))
+lwd_val <- 2
+color_data <- 4
+color_model <- 2
+read_excel2 <- function(file, ...) readxl::read_excel(paste0(path2data, file), ...)
+excel_sheets2 <- function(file) readxl::excel_sheets(paste0(path2data, file))
+plot2 <- function(...) plot(..., col = color_data)
+seq2 <- function(...) seq(..., le = 512)
+plotl <- function(...) plot(..., type = "l", col = color_model, lwd = lwd_val)
+points2 <- function(...) points(..., col = color_data, pch = 3, lwd = lwd_val)
+lines2 <- function(...) lines(..., col = color_model, lwd = lwd_val)
+print_all <- function(x) print(x, n = nrow(x))
+polygon2 <- function(x, y1, y2, ...) {
+  polygon(c(x, rev(x)), c(y1, rev(y2)), border = NA, ...)
+}
 ```
 
+
+## Preparing the data
+
+A function that removes the plate tab that do not contains any data:
+
+```{r}
+remove_empty_plates <- function(x) x[map_lgl(x, ~ ! all(is.na(.x$RESULT)))]
+```
+
+A function that adds the sample ID whenever missing:
+
+```{r}
+add_sample_id <- function(x) {
+  id <- x$HCDC_SAMPLE_ID
+  
+  x$HCDC_SAMPLE_ID <- grep("Anti", id, value = TRUE, invert = TRUE) |> 
+    na.exclude() |> 
+    unique() |> 
+    rep(each = 3) |> 
+    c(grep("Anti", id, value = TRUE))
+  
+  x
+}
+```
+
+Reading and arranging the data:
+
+```{r}
+plates <- datafile |>
+  excel_sheets2() |> 
+  (\(.x) .x[grepl("Plate", .x)])() |> 
+  (\(.x) setNames(map(.x, read_excel2, file = datafile), .x))() |> 
+  map(~ setNames(.x, toupper(names(.x)))) |> 
+  remove_empty_plates() |> 
+  map(add_sample_id) |> 
+  map(~ mutate(.x, od = RESULT - mean(c_across(starts_with("BLANK")))))
+```
+
+## Specific functions
+
+A 4-parameter logistic model that relates optical density $\mbox{OD}$ to the logarithm
+of the concentration $\mbox{LC}$:
+
+$$
+\mbox{OD} = d + \frac{a - d}{1 + e^{\left(\mbox{LC} - c\right)b}}
+$$
+
+where:
+
+* $a$ is the minimum $\mbox{OD}$, *i.e.* when the concentration is $0$;
+* $d$ is the maximum $\mbox{OD}$, *i.e.* when the concentration is $+\infty$;
+* $c$ is the $\mbox{LC}$ of the point of inflexion, *i.e.* where $\mbox{OD} = (d - a) / 2$;
+* $b$ is the Hill's slope of the curve, *i.e.* of the curve at the inflexion point.
+
+```{r}
+equation <- function(x, a, b, c, d) {
+  d + (a - d) / (1 + exp((x - c) * b))
+}
+
+good_guess4PL <- function(x, y) {
+  nb_rep <- unique(table(x))
+  the_order <- order(x)
+  x <- x[the_order]
+  y <- y[the_order]
+  a <- min(y)
+  d <- max(y)
+  list(a = a, b = 2, c = approx(y, x, (d - a) / 2, ties = "ordered")$y, d = d)
+}
+
+nls4PL <- function(df) {
+  nls(od ~ equation(log(concentration), a, b, c, d),
+      df, with(df, good_guess4PL(log(concentration), od)))
+}
+```
+
+```{r}
+get_equation <- function(nls_model) get("equation", envir = environment(nls_model))
+```
+
+```{r}
+standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
+  fitted <- model(df)
+  log_concentration <- log(df$concentration)
+  logc <- seq(min(log_concentration), max(log_concentration), le = le)
+  alpha <- (1 - level) / 2
+  
+  nb |>
+    mvtnorm::rmvnorm(coef(fitted), vcov(fitted)) |> 
+    as.data.frame() |> 
+    rowwise() |> 
+    mutate(predictions = list(get_equation(model)(logc, a, b, c, d))) |> # TO DO: make it more generic
+    pull(predictions) |> 
+    as.data.frame() |> t() |> as.data.frame() |>
+    map_dfr(quantile, c(alpha, .5, 1 - alpha)) |> 
+    setNames(c("lower", "median", "upper")) |> 
+    (\(.x) bind_cols(logc = logc, .x))()
+}
+```
+
+```{r}
+plot_standard_curve <- function(scdf, data = NULL) {
+  with(scdf, {
+    plot(xs, scdf$lower, type = "n", ylim = c(0, max(upper, data$od)),
+         xlab = "log(concentration)", ylab = "optical density")
+    polygon2(logc, lower, upper, col = adjustcolor(color_model, .2))
+    lines2(logc, median)
+  })
+  if (! is.null(data)) with(data, points2(log(concentration), od))
+}
+```
+
+```{r}
+data2function <- function(df) {
+  with(df, {
+    make_pred_function <- function(data) function(x) approx(data, logc, x)$y
+    pred_lwr <- make_pred_function(upper)
+    pred_mdi <- make_pred_function(median)
+    pred_upp <- make_pred_function(lower)
+    function(x) c(lower = pred_lwr(x), median = pred_mdi(x), upper = pred_upp(x))
+  })
+}
+```
+
+```{r}
+get_antitoxins <- function(plate) {
+  plate |>
+    filter(HCDC_SAMPLE_ID == "Anti_toxin") |> 
+    mutate(concentration = ref_conc / DILUTION_FACTORS)
+}
+```
+
+```{r}
+process_samples <- function(plate, std_crv) {
+  plate |> 
+    filter(HCDC_SAMPLE_ID != "Anti_toxin") |> 
+    rowwise() |> 
+    mutate(logconcentration = list(std_crv(RESULT))) |> 
+    tidyr::unnest_wider(logconcentration)
+}
+```
+
+An example on the first plate:
+
+```{r}
+plate <- plates[[1]]
+```
+
+The 4 commands:
+
+```{r}
+anti_toxins <- get_antitoxins(plate)
+standard_curve_df <- standard_curve_data(anti_toxins, nls4PL)
+standard_curve <- data2function(standard_curve_df)
+samples <- process_samples(plate, standard_curve)
+```
+
+The plots:
+
+```{r}
+plot_standard_curve(standard_curve_df)
+plot_standard_curve(standard_curve_df, anti_toxins)
+```
+
+
+## Processing all the plates
+
+```{r}
+anti_toxins <- map(plates, get_antitoxins)
+standard_curve_df <- map(anti_toxins, standard_curve_data, nls4PL)
+standard_curves <- map(standard_curve_df, data2function)
+samples <- map2(plates, standard_curves, process_samples)
+```
+
+
+
+
+
+
+
+## Exploring plate 1
+
+```{r}
+plate1 <- plates[[1]] |> 
+  mutate(od = RESULT - mean(c_across(starts_with("BLANK"))))
+```
+
+
+### Calibrating the standard curve
+
+```{r}
+anti_toxin <- plate1 |> 
+  filter(HCDC_SAMPLE_ID == "Anti_toxin") |> 
+  mutate(concentration = ref_conc / DILUTION_FACTORS)
+
+with(anti_toxin, plot2(log(concentration), od, ylim = c(0, max(od)),
+                       ylab = "optical density"))
+```
+
+A 4-parameter logistic model that relates optical density $\mbox{OD}$ to the logarithm
+of the concentration $\mbox{LC}$:
+
+$$
+\mbox{OD} = d + \frac{a - d}{1 + e^{\left(\mbox{LC} - c\right)b}}
+$$
+
+where:
+
+* $a$ is the minimum $\mbox{OD}$, *i.e.* when the concentration is $0$;
+* $d$ is the maximum $\mbox{OD}$, *i.e.* when the concentration is $+\infty$;
+* $c$ is the $\mbox{LC}$ of the point of inflexion, *i.e.* where $\mbox{OD} = (d - a) / 2$;
+* $b$ is the Hill's slope of the curve, *i.e.* of the curve at the inflexion point.
+
+```{r}
+starting_values <- function(x, y) {
+  nb_rep <- unique(table(x))
+  the_order <- order(x)
+  x <- x[the_order]
+  y <- y[the_order]
+  a <- min(y)
+  d <- max(y)
+  list(a = a, b = 2, c = approx(y, x, (d - a) / 2, ties = "ordered")$y, d = d)
+}
+```
+
+```{r}
+standard_curve <- function(anti_toxin_data) {
+  out <- nls(od ~ d + (a - d) / (1 + exp((log(concentration) - c) * b)),
+             anti_toxin_data,
+             with(anti_toxin_data, starting_values(log(concentration), od)))
+  out$data <- anti_toxin_data
+  out
+}
+```
+
+```{r}
+predict_sim <- function(model, le = 512, level = .95, nb = 9999) {
+  alpha <- (1 - level) / 2
+  
+  data <- model$data
+  log_concentration <- log(data$concentration)
+  xs <- seq(min(log_concentration), max(log_concentration), le = le)
+  
+  out <- nb |>
+    mvtnorm::rmvnorm(coef(model), vcov(model)) |> 
+    as.data.frame() |> 
+    rowwise() |> 
+    mutate(predictions = list(d + (a - d) / (1 + exp((xs - c) * b)))) |> 
+    pull(predictions) |> 
+    as.data.frame() |>
+    t() |>
+    as.data.frame() |>
+    map_dfr(quantile, c(alpha, .5, 1 - alpha))
+  
+  attr(out, "data") <- data
+  attr(out, "xs") <- xs
+  out
+}
+```
+
+```{r}
+plot_predictions <- function(model) {
+  data <- model$data
+  log_concentration <- log(data$concentration)
+  xs <- exp(seq2(min(log_concentration), max(log_concentration)))
+  predictions <- predict(model, data.frame(concentration = xs))
+  plotl(log(xs), predictions, ylim = c(0, max(data$od, predictions)),
+        xlab = "log(concentration)", ylab = "optical density")
+  with(data, points2(log(concentration), od))
+}
+```
+
+```{r}
+plot_predictions_ci <- function(predictions) {
+  xs <- attr(predictions, "xs")
+  data <- attr(predictions, "data")
+  y <- predictions$`97.5%`
+  plot(xs, y, ylim = c(0, max(data$od, y)), type = "n",
+       xlab = "log(concentration)", ylab = "optical density")
+  with(predictions, {
+    polygon2(xs, `2.5%`, `97.5%`, col = adjustcolor(color_model, .2))
+    lines2(xs, `50%`)
+  })
+  with(data, points2(log(concentration), od))
+}
+```
+
+```{r}
+fitted4PL <- standard_curve(anti_toxin)
+#plot_predictions(fitted4PL)
+predictions <- predict_sim(fitted4PL, le = 512, level = .95, nb = 9999)
+plot_predictions_ci(predictions)
+```
+
+
+### Converting OD to concentrations
+
+```{r}
+data2function <- function(data) {
+  xs <- attr(data, "xs")
+  lower <- data$`2.5%`
+  median <- data$`50%`
+  upper <- data$`97.5%`
+  pred_lower <- function(x) approx(upper, xs, x)$y
+  pred_median <- function(x) approx(median, xs, x)$y
+  pred_upper <- function(x) approx(lower, xs, x)$y
+  function(x) c(lower = pred_lower(x), median = pred_median(x), upper = pred_upper(x))
+}
+```
+
+```{r}
+od2logconcentration <- data2function(predictions)
+```
+
+```{r}
+samples <- plate1 |> 
+  filter(HCDC_SAMPLE_ID != "Anti_toxin") |> 
+  rowwise() |> 
+  mutate(logconcentration = list(od2logconcentration(RESULT))) |> 
+  tidyr::unnest_wider(logconcentration)
+```
+
+```{r}
+samples |> 
+  filter(is.na(median)) |> 
+  pull(od) |> 
+  range()
+```
+
+```{r}
+samples |> 
+  mutate(missing = is.na(lower) + is.na(median) + is.na(upper)) |> 
+  group_by(DILUTION_FACTORS) |> 
+  group_split() |> 
+  map(~ sum(.x$missing))
+```
+
+
+## Processing all the plates
+
+### Standard curves
+
+```{r}
+antitoxins <- plates |> 
+  map(~ .x |> 
+        filter(HCDC_SAMPLE_ID == "Anti_toxin") |> 
+        mutate(concentration = ref_conc / DILUTION_FACTORS))
+```
+
+```{r eval = FALSE, include = FALSE}
+antitoxins |>
+  map(standard_curve) |> 
+  walk(plot_predictions)
+```
+
+30":
+
+```{r eval = FALSE}
+predictions <- antitoxins |>
+  map(~ .x |>
+        standard_curve() |> 
+        predict_sim())
+```
+
+```{r include = FALSE}
+if (file_exists("predictions.rds")) {
+  predictions <- readRDS3("predictions.rds")
+} else {
+  predictions <- antitoxins |>
+    map(~ .x |>
+          standard_curve() |> 
+          predict_sim())
+  saveRDS2(predictions, "predictions.rds")
+}
+```
+
+```{r eval = FALSE}
+walk(predictions, plot_predictions_ci)
+```
+
+```{r}
+converting_functions <- map(predictions, data2function)
+```
+
+### Samples
+
+```{r}
+samples <- plates |> 
+  map(filter, HCDC_SAMPLE_ID != "Anti_toxin") |> 
+  map2(converting_functions,
+       ~ .x |>
+         rowwise() |> 
+         mutate(logconcentration = list(.y(RESULT))) |> 
+         tidyr::unnest_wider(logconcentration))
+```
+
+```{r}
+NA_locations <- function(x) {
+  c(l   = nrow(filter(x,   is.na(lower), ! is.na(median), ! is.na(upper))),
+    lm  = nrow(filter(x,   is.na(lower),   is.na(median), ! is.na(upper))),
+    all = nrow(filter(x,   is.na(lower),   is.na(median),   is.na(upper))),
+    um  = nrow(filter(x, ! is.na(lower),   is.na(median),   is.na(upper))),
+    u   = nrow(filter(x, ! is.na(lower), ! is.na(median),   is.na(upper))))  
+}
+```
+
+```{r}
+NA_locations_split <- function(x) {
+  list(l   = filter(x,   is.na(lower), ! is.na(median), ! is.na(upper)),
+       lm  = filter(x,   is.na(lower),   is.na(median), ! is.na(upper)),
+       all = filter(x,   is.na(lower),   is.na(median),   is.na(upper)),
+       um  = filter(x, ! is.na(lower),   is.na(median),   is.na(upper)),
+       u   = filter(x, ! is.na(lower), ! is.na(median),   is.na(upper)))
+}
+```
+
+This suggests that the more diluted the samples, the better:
+
+```{r}
+map_dfr(samples, ~ .x |> NA_locations_split() |> map_dbl(nrow)) |> 
+  print_all()
+```
+
+```{r}
+ranges <- map_dfr(samples, ~ .x |>
+                    filter(is.na(lower) | is.na(median) | is.na(upper)) |> 
+                    pull(od) |>
+                    range() |>
+                    setNames(c("min", "max")))
+print_all(ranges)
+```
+
+```{r}
+threshold <- .31
+
+samples[which(ranges$min < threshold)] |> 
+  map(~ filter(.x,
+               HCDC_SAMPLE_ID %in% pull(filter(.x, od < threshold), HCDC_SAMPLE_ID)) |> 
+        select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, od, lower, median, upper))
+```
+
+
+
+
+## Plots
+
+```{r fig.width = 8, fig.height = 5.25, margin1 = FALSE, margin3 = TRUE}
+# this is for a 3 x 3 plot
+```
