@@ -141,7 +141,7 @@ window.Quarto = {
 
 <section id="parameters" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="parameters"><span class="header-section-number">1</span> Parameters</h2>
-<p>The concentration of the reference anti-toxin 10 IU/mL:</p>
+<p>The concentration of the reference anti-toxin is 10 IU/mL:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ref_conc <span class="ot">&lt;-</span> <span class="dv">10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -180,49 +180,56 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lwd_val <span class="ot">&lt;-</span> <span class="dv">2</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>color_data <span class="ot">&lt;-</span> <span class="dv">4</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>color_model <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>read_excel2 <span class="ot">&lt;-</span> <span class="cf">function</span>(file, ...) readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="fu">paste0</span>(path2data, file), ...)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>excel_sheets2 <span class="ot">&lt;-</span> <span class="cf">function</span>(file) readxl<span class="sc">::</span><span class="fu">excel_sheets</span>(<span class="fu">paste0</span>(path2data, file))</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">plot</span>(..., <span class="at">col =</span> color_data)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>seq2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">seq</span>(..., <span class="at">le =</span> <span class="dv">512</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plotl <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">plot</span>(..., <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> color_model, <span class="at">lwd =</span> lwd_val)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>points2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">points</span>(..., <span class="at">col =</span> color_data, <span class="at">pch =</span> <span class="dv">3</span>, <span class="at">lwd =</span> lwd_val)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>lines2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">lines</span>(..., <span class="at">col =</span> color_model, <span class="at">lwd =</span> lwd_val)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>print_all <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">print</span>(x, <span class="at">n =</span> <span class="fu">nrow</span>(x))</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>polygon2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y1, y2, ...) {</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">polygon</span>(<span class="fu">c</span>(x, <span class="fu">rev</span>(x)), <span class="fu">c</span>(y1, <span class="fu">rev</span>(y2)), <span class="at">border =</span> <span class="cn">NA</span>, ...)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>make_path <span class="ot">&lt;-</span> <span class="cf">function</span>(file) <span class="fu">paste0</span>(path2data, file)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>read_excel2 <span class="ot">&lt;-</span> <span class="cf">function</span>(file, ...) readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="fu">make_path</span>(file), ...)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>excel_sheets2 <span class="ot">&lt;-</span> <span class="cf">function</span>(file) readxl<span class="sc">::</span><span class="fu">excel_sheets</span>(<span class="fu">make_path</span>(file))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">plot</span>(..., <span class="at">col =</span> color_data)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>seq2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">seq</span>(..., <span class="at">le =</span> <span class="dv">512</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>plotl <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">plot</span>(..., <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> color_model, <span class="at">lwd =</span> lwd_val)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>points2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">points</span>(..., <span class="at">col =</span> color_data, <span class="at">pch =</span> <span class="dv">3</span>, <span class="at">lwd =</span> lwd_val)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>lines2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">lines</span>(..., <span class="at">col =</span> color_model, <span class="at">lwd =</span> lwd_val)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>print_all <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">print</span>(x, <span class="at">n =</span> <span class="fu">nrow</span>(x))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>approx2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">approx</span>(..., <span class="at">ties =</span> <span class="st">"ordered"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>polygon2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y1, y2, ...) {</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">polygon</span>(<span class="fu">c</span>(x, <span class="fu">rev</span>(x)), <span class="fu">c</span>(y1, <span class="fu">rev</span>(y2)), <span class="at">border =</span> <span class="cn">NA</span>, ...)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A function that splits the rows of a dataframe into a list of dataframes:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>rowsplit <span class="ot">&lt;-</span> <span class="cf">function</span>(df) <span class="fu">split</span>(df, <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="preparing-the-data" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="preparing-the-data"><span class="header-section-number">4</span> Preparing the data</h2>
-<p>A function that removes the plate tab that do not contains any data:</p>
+<p>A function that removes the plate slot(s) that do(es) not contain any data:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>remove_empty_plates <span class="ot">&lt;-</span> <span class="cf">function</span>(x) x[<span class="fu">map_lgl</span>(x, <span class="sc">~</span> <span class="sc">!</span> <span class="fu">all</span>(<span class="fu">is.na</span>(.x<span class="sc">$</span>RESULT)))]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>remove_empty_plates <span class="ot">&lt;-</span> <span class="cf">function</span>(x) x[<span class="fu">map_lgl</span>(x, <span class="sc">~</span> <span class="sc">!</span> <span class="fu">all</span>(<span class="fu">is.na</span>(.x<span class="sc">$</span>RESULT)))]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>A function that adds the sample ID whenever missing:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>add_sample_id <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  id <span class="ot">&lt;-</span> x<span class="sc">$</span>HCDC_SAMPLE_ID</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  x<span class="sc">$</span>HCDC_SAMPLE_ID <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Anti"</span>, id, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">invert =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">na.exclude</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="at">each =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="fu">grep</span>(<span class="st">"Anti"</span>, id, <span class="at">value =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  x</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>add_sample_id <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  id <span class="ot">&lt;-</span> x<span class="sc">$</span>HCDC_SAMPLE_ID</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  x<span class="sc">$</span>HCDC_SAMPLE_ID <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Anti"</span>, id, <span class="at">value =</span> <span class="cn">TRUE</span>, <span class="at">invert =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">na.exclude</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="at">each =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(<span class="fu">grep</span>(<span class="st">"Anti"</span>, id, <span class="at">value =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  x</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Reading and arranging the data:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plates <span class="ot">&lt;-</span> datafile <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">excel_sheets2</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  (\(.x) .x[<span class="fu">grepl</span>(<span class="st">"Plate"</span>, .x)])() <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  (\(.x) <span class="fu">setNames</span>(<span class="fu">map</span>(.x, read_excel2, <span class="at">file =</span> datafile), .x))() <span class="sc">|&gt;</span> </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">setNames</span>(.x, <span class="fu">toupper</span>(<span class="fu">names</span>(.x)))) <span class="sc">|&gt;</span> </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_empty_plates</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(add_sample_id) <span class="sc">|&gt;</span> </span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">mutate</span>(.x, <span class="at">od =</span> RESULT <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(<span class="fu">starts_with</span>(<span class="st">"BLANK"</span>)))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>plates <span class="ot">&lt;-</span> datafile <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">excel_sheets2</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  (\(.x) .x[<span class="fu">grepl</span>(<span class="st">"Plate"</span>, .x)])() <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  (\(.x) <span class="fu">setNames</span>(<span class="fu">map</span>(.x, read_excel2, <span class="at">file =</span> datafile), .x))() <span class="sc">|&gt;</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">setNames</span>(.x, <span class="fu">toupper</span>(<span class="fu">names</span>(.x)))) <span class="sc">|&gt;</span> </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">remove_empty_plates</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(add_sample_id) <span class="sc">|&gt;</span> </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">mutate</span>(.x, <span class="at">od =</span> RESULT <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(<span class="fu">starts_with</span>(<span class="st">"BLANK"</span>)))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="specific-functions" class="level2" data-number="5">
@@ -236,31 +243,29 @@ window.Quarto = {
 <li><span class="math inline">\(a\)</span> is the minimum <span class="math inline">\(\mbox{OD}\)</span>, <em>i.e.</em> when the concentration is <span class="math inline">\(0\)</span>;</li>
 <li><span class="math inline">\(d\)</span> is the maximum <span class="math inline">\(\mbox{OD}\)</span>, <em>i.e.</em> when the concentration is <span class="math inline">\(+\infty\)</span>;</li>
 <li><span class="math inline">\(c\)</span> is the <span class="math inline">\(\mbox{LC}\)</span> of the point of inflexion, <em>i.e.</em> where <span class="math inline">\(\mbox{OD} = (d - a) / 2\)</span>;</li>
-<li><span class="math inline">\(b\)</span> is the Hill’s slope of the curve, <em>i.e.</em> of the curve at the inflexion point.</li>
+<li><span class="math inline">\(b\)</span> is the Hill’s slope of the curve, <em>i.e.</em> the slope of the curve at the inflexion point.</li>
 </ul>
+<p>Two functions that implement the calibration of a 4PL model:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>equation <span class="ot">&lt;-</span> <span class="cf">function</span>(x, a, b, c, d) {</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  d <span class="sc">+</span> (a <span class="sc">-</span> d) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>((x <span class="sc">-</span> c) <span class="sc">*</span> b))</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>good_guess4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y) {</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  nb_rep <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">table</span>(x))</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  the_order <span class="ot">&lt;-</span> <span class="fu">order</span>(x)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x[the_order]</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> y[the_order]</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">min</span>(y)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">max</span>(y)</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a =</span> a, <span class="at">b =</span> <span class="dv">2</span>, <span class="at">c =</span> <span class="fu">approx</span>(y, x, (d <span class="sc">-</span> a) <span class="sc">/</span> <span class="dv">2</span>, <span class="at">ties =</span> <span class="st">"ordered"</span>)<span class="sc">$</span>y, <span class="at">d =</span> d)</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>nls4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nls</span>(od <span class="sc">~</span> <span class="fu">equation</span>(<span class="fu">log</span>(concentration), a, b, c, d),</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>      df, <span class="fu">with</span>(df, <span class="fu">good_guess4PL</span>(<span class="fu">log</span>(concentration), od)))</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>good_guess4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, <span class="at">eps =</span> <span class="dv">1</span>) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  nb_rep <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">table</span>(x))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  the_order <span class="ot">&lt;-</span> <span class="fu">order</span>(x)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x[the_order]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> y[the_order]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">min</span>(y)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">max</span>(y)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  c <span class="ot">&lt;-</span> <span class="fu">approx2</span>(y, x, (d <span class="sc">-</span> a) <span class="sc">/</span> <span class="dv">2</span>)<span class="sc">$</span>y</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a =</span> a,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">b =</span> (<span class="fu">approx2</span>(x, y, c <span class="sc">+</span> eps)<span class="sc">$</span>y <span class="sc">-</span> <span class="fu">approx2</span>(x, y, c <span class="sc">-</span> eps)<span class="sc">$</span>y) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> eps),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">c =</span> c, <span class="at">d =</span> d)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>nls4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nls</span>(od <span class="sc">~</span> d <span class="sc">+</span> (a <span class="sc">-</span> d) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>((<span class="fu">log</span>(concentration) <span class="sc">-</span> c) <span class="sc">*</span> b)),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      df, <span class="fu">with</span>(df, <span class="fu">good_guess4PL</span>(<span class="fu">log</span>(concentration), od)))</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>get_equation <span class="ot">&lt;-</span> <span class="cf">function</span>(nls_model) <span class="fu">get</span>(<span class="st">"equation"</span>, <span class="at">envir =</span> <span class="fu">environment</span>(nls_model))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>A function that generate the standard curve with confidence interval in the form of a dataframe:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>standard_curve_data <span class="ot">&lt;-</span> <span class="cf">function</span>(df, model, <span class="at">le =</span> <span class="dv">512</span>, <span class="at">level =</span> .<span class="dv">95</span>, <span class="at">nb =</span> <span class="dv">9999</span>) {</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  fitted <span class="ot">&lt;-</span> <span class="fu">model</span>(df)</span>
@@ -270,16 +275,18 @@ window.Quarto = {
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  nb <span class="sc">|&gt;</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    mvtnorm<span class="sc">::</span><span class="fu">rmvnorm</span>(<span class="fu">coef</span>(fitted), <span class="fu">vcov</span>(fitted)) <span class="sc">|&gt;</span> </span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">predictions =</span> <span class="fu">list</span>(<span class="fu">get_equation</span>(model)(logc, a, b, c, d))) <span class="sc">|&gt;</span> <span class="co"># TO DO: make it more generic</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(predictions) <span class="sc">|&gt;</span> </span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>() <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map_dfr</span>(quantile, <span class="fu">c</span>(alpha, .<span class="dv">5</span>, <span class="dv">1</span> <span class="sc">-</span> alpha)) <span class="sc">|&gt;</span> </span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"lower"</span>, <span class="st">"median"</span>, <span class="st">"upper"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    (\(.x) <span class="fu">bind_cols</span>(<span class="at">logc =</span> logc, .x))()</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rowsplit</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(as.list) <span class="sc">|&gt;</span> </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">c</span>(.x, <span class="at">concentration =</span> <span class="fu">list</span>(<span class="fu">exp</span>(logc)))) <span class="sc">|&gt;</span> </span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map_dfc</span>(eval, <span class="at">expr =</span> <span class="fu">parse</span>(<span class="at">text =</span> <span class="fu">as.character</span>(<span class="fu">formula</span>(fitted))[<span class="dv">3</span>])) <span class="sc">|&gt;</span> </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply</span>(<span class="dv">1</span>, quantile, <span class="fu">c</span>(alpha, .<span class="dv">5</span>, <span class="dv">1</span> <span class="sc">-</span> alpha)) <span class="sc">|&gt;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>() <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"lower"</span>, <span class="st">"median"</span>, <span class="st">"upper"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    (\(.x) <span class="fu">bind_cols</span>(<span class="at">logc =</span> logc, .x))()</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>A function that plots the output of <code>standard_curve_data()</code> with or without data:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plot_standard_curve <span class="ot">&lt;-</span> <span class="cf">function</span>(scdf, <span class="at">data =</span> <span class="cn">NULL</span>) {</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(scdf, {</span>
@@ -291,6 +298,7 @@ window.Quarto = {
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span> <span class="fu">is.null</span>(data)) <span class="fu">with</span>(data, <span class="fu">points2</span>(<span class="fu">log</span>(concentration), od))</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>A function that converts a dataframe into a function:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>data2function <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(df, {</span>
@@ -302,6 +310,7 @@ window.Quarto = {
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>A function that retrieves the anti-toxins data from a plate:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>get_antitoxins <span class="ot">&lt;-</span> <span class="cf">function</span>(plate) {</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  plate <span class="sc">|&gt;</span></span>
@@ -309,6 +318,7 @@ window.Quarto = {
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">concentration =</span> ref_conc <span class="sc">/</span> DILUTION_FACTORS)</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>A function that retrieves the samples data from a plate:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>process_samples <span class="ot">&lt;-</span> <span class="cf">function</span>(plate, std_crv) {</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  plate <span class="sc">|&gt;</span> </span>
@@ -320,22 +330,26 @@ window.Quarto = {
 </div>
 <p>An example on the first plate:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plate <span class="ot">&lt;-</span> plates[[<span class="dv">1</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plate <span class="ot">&lt;-</span> plates<span class="sc">$</span>Plate_01_hcdc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The 4 commands:</p>
+<p>The 4 steps:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>anti_toxins <span class="ot">&lt;-</span> <span class="fu">get_antitoxins</span>(plate)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>standard_curve_df <span class="ot">&lt;-</span> <span class="fu">standard_curve_data</span>(anti_toxins, nls4PL)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>standard_curve <span class="ot">&lt;-</span> <span class="fu">data2function</span>(standard_curve_df)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">process_samples</span>(plate, standard_curve)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># step 1: retrieve the anti-toxins data:</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>anti_toxins <span class="ot">&lt;-</span> <span class="fu">get_antitoxins</span>(plate)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># step 2: generate the standard curve with CI in the form of a dataframe:</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>standard_curve_df <span class="ot">&lt;-</span> <span class="fu">standard_curve_data</span>(anti_toxins, nls4PL)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># step 3: convert the standard curve dataframe into a standard curve function:</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>standard_curve <span class="ot">&lt;-</span> <span class="fu">data2function</span>(standard_curve_df)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># step 4: convert the OD of the samples into log-concentrations:</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>samples <span class="ot">&lt;-</span> <span class="fu">process_samples</span>(plate, standard_curve)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The plots:</p>
+<p>The plots of the standard curve, with and without data:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_standard_curve</span>(standard_curve_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="analysis_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
+<p><img src="analysis_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
 </figure>
 </div>
 </div>
@@ -343,7 +357,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="analysis_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
+<p><img src="analysis_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
 </figure>
 </div>
 </div>
@@ -445,7 +459,7 @@ window.Quarto = {
 # A tibble: 3 × 7
   HCDC_SAMPLE_ID DILUTION_FACTORS RESULT    od lower median upper
   &lt;chr&gt;                     &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-1 U07B522205149                50  0.879 0.808 -7.67  -7.51 -7.37
+1 U07B522205149                50  0.879 0.808 -7.68  -7.51 -7.37
 2 U07B522205149               100  0.419 0.348 NA     -8.44 -8.07
 3 U07B522205149               200  0.272 0.201 NA     NA    -8.59
 
@@ -453,7 +467,7 @@ $Plate_19_hcdc
 # A tibble: 3 × 7
   HCDC_SAMPLE_ID DILUTION_FACTORS RESULT    od lower median upper
   &lt;chr&gt;                     &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-1 U07B532300109                50  1.18  1.02  -7.77  -7.67 -7.57
+1 U07B532300109                50  1.18  1.02  -7.77  -7.66 -7.57
 2 U07B532300109               100  0.691 0.530 -8.34  -8.18 -8.05
 3 U07B532300109               200  0.469 0.308 NA     -8.65 -8.42
 
@@ -461,9 +475,9 @@ $Plate_22_hcdc
 # A tibble: 6 × 7
   HCDC_SAMPLE_ID DILUTION_FACTORS RESULT      od lower median upper
   &lt;chr&gt;                     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-1 U07B522205294                50  0.625 0.437   -8.29  -8.01 -7.81
-2 U07B522205294               100  0.427 0.239   NA     -8.91 -8.31
-3 U07B522205294               200  0.329 0.141   NA     NA    -8.78
+1 U07B522205294                50  0.625 0.437   -8.28  -8.01 -7.81
+2 U07B522205294               100  0.427 0.239   NA     -8.90 -8.31
+3 U07B522205294               200  0.329 0.141   NA     NA    -8.80
 4 U07B522205309                50  0.484 0.296   NA     -8.49 -8.13
 5 U07B522205309               100  0.267 0.0793  NA     NA    NA   
 6 U07B522205309               200  0.194 0.00633 NA     NA    NA   </code></pre>

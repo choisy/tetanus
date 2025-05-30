@@ -29,7 +29,7 @@ knitr::opts_chunk$set(margin1    = TRUE,
 
 ## Parameters
 
-The concentration of the reference anti-toxin 10 IU/mL:
+The concentration of the reference anti-toxin is 10 IU/mL:
 
 ```{r}
 ref_conc <- 10
@@ -46,10 +46,10 @@ path2data <- paste0(Sys.getenv("HOME"), "/Library/CloudStorage/",
 The name of the data file:
 
 ```{r include = FALSE}
-make_path <- function(x) paste0(path2data, "cache/", x)
-file_exists <- function(x) file.exists(make_path(x))
-readRDS3 <- function(x) readRDS(make_path(x))
-saveRDS2 <- function(object, file) saveRDS(object, make_path(file))
+make_path2 <- function(x) paste0(path2data, "cache/", x)
+file_exists <- function(x) file.exists(make_path2(x))
+readRDS3 <- function(x) readRDS(make_path2(x))
+saveRDS2 <- function(object, file) saveRDS(object, make_path2(file))
 ```
 
 ```{r}
@@ -87,23 +87,31 @@ Tuning some base functions:
 lwd_val <- 2
 color_data <- 4
 color_model <- 2
-read_excel2 <- function(file, ...) readxl::read_excel(paste0(path2data, file), ...)
-excel_sheets2 <- function(file) readxl::excel_sheets(paste0(path2data, file))
+
+make_path <- function(file) paste0(path2data, file)
+read_excel2 <- function(file, ...) readxl::read_excel(make_path(file), ...)
+excel_sheets2 <- function(file) readxl::excel_sheets(make_path(file))
 plot2 <- function(...) plot(..., col = color_data)
 seq2 <- function(...) seq(..., le = 512)
 plotl <- function(...) plot(..., type = "l", col = color_model, lwd = lwd_val)
 points2 <- function(...) points(..., col = color_data, pch = 3, lwd = lwd_val)
 lines2 <- function(...) lines(..., col = color_model, lwd = lwd_val)
 print_all <- function(x) print(x, n = nrow(x))
+approx2 <- function(...) approx(..., ties = "ordered")
 polygon2 <- function(x, y1, y2, ...) {
   polygon(c(x, rev(x)), c(y1, rev(y2)), border = NA, ...)
 }
 ```
 
+A function that splits the rows of a dataframe into a list of dataframes:
+
+```{r}
+rowsplit <- function(df) split(df, 1:nrow(df))
+```
 
 ## Preparing the data
 
-A function that removes the plate tab that do not contains any data:
+A function that removes the plate slot(s) that do(es) not contain any data:
 
 ```{r}
 remove_empty_plates <- function(x) x[map_lgl(x, ~ ! all(is.na(.x$RESULT)))]
@@ -152,32 +160,32 @@ where:
 * $a$ is the minimum $\mbox{OD}$, *i.e.* when the concentration is $0$;
 * $d$ is the maximum $\mbox{OD}$, *i.e.* when the concentration is $+\infty$;
 * $c$ is the $\mbox{LC}$ of the point of inflexion, *i.e.* where $\mbox{OD} = (d - a) / 2$;
-* $b$ is the Hill's slope of the curve, *i.e.* of the curve at the inflexion point.
+* $b$ is the Hill's slope of the curve, *i.e.* the slope of the curve at the inflexion point.
+
+Two functions that implement the calibration of a 4PL model:
 
 ```{r}
-equation <- function(x, a, b, c, d) {
-  d + (a - d) / (1 + exp((x - c) * b))
-}
-
-good_guess4PL <- function(x, y) {
+good_guess4PL <- function(x, y, eps = 1) {
   nb_rep <- unique(table(x))
   the_order <- order(x)
   x <- x[the_order]
   y <- y[the_order]
   a <- min(y)
   d <- max(y)
-  list(a = a, b = 2, c = approx(y, x, (d - a) / 2, ties = "ordered")$y, d = d)
+  c <- approx2(y, x, (d - a) / 2)$y
+  list(a = a,
+       b = (approx2(x, y, c + eps)$y - approx2(x, y, c - eps)$y) / (2 * eps),
+       c = c, d = d)
 }
 
 nls4PL <- function(df) {
-  nls(od ~ equation(log(concentration), a, b, c, d),
+  nls(od ~ d + (a - d) / (1 + exp((log(concentration) - c) * b)),
       df, with(df, good_guess4PL(log(concentration), od)))
 }
 ```
 
-```{r}
-get_equation <- function(nls_model) get("equation", envir = environment(nls_model))
-```
+A function that generate the standard curve with confidence interval in the form of a
+dataframe:
 
 ```{r}
 standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
@@ -188,16 +196,34 @@ standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
   
   nb |>
     mvtnorm::rmvnorm(coef(fitted), vcov(fitted)) |> 
-    as.data.frame() |> 
-    rowwise() |> 
-    mutate(predictions = list(get_equation(model)(logc, a, b, c, d))) |> # TO DO: make it more generic
-    pull(predictions) |> 
-    as.data.frame() |> t() |> as.data.frame() |>
-    map_dfr(quantile, c(alpha, .5, 1 - alpha)) |> 
+    as.data.frame() |>
+    rowsplit() |> 
+    map(as.list) |> 
+    map(~ c(.x, concentration = list(exp(logc)))) |> 
+    map_dfc(eval, expr = parse(text = as.character(formula(fitted))[3])) |> 
+    apply(1, quantile, c(alpha, .5, 1 - alpha)) |>
+    t() |> as.data.frame() |> 
     setNames(c("lower", "median", "upper")) |> 
     (\(.x) bind_cols(logc = logc, .x))()
 }
 ```
+
+```{r eval = FALSE, include = FALSE}
+simulate_nls <- function(object, newdata, nb) {
+  force(object)
+  local_object <- object
+  1:nb |> 
+    map_dfc(function(i) {
+          mvtnorm::rmvnorm(1, coef(local_object), vcov(local_object)) |> 
+            as.data.frame() |> 
+            as.vector() |> 
+            unlist() |>
+            local_object$m$setPars()
+          predict(local_object, newdata)})
+}
+```
+
+A function that plots the output of `standard_curve_data()` with or without data:
 
 ```{r}
 plot_standard_curve <- function(scdf, data = NULL) {
@@ -211,6 +237,8 @@ plot_standard_curve <- function(scdf, data = NULL) {
 }
 ```
 
+A function that converts a dataframe into a function:
+
 ```{r}
 data2function <- function(df) {
   with(df, {
@@ -223,6 +251,8 @@ data2function <- function(df) {
 }
 ```
 
+A function that retrieves the anti-toxins data from a plate:
+
 ```{r}
 get_antitoxins <- function(plate) {
   plate |>
@@ -230,6 +260,8 @@ get_antitoxins <- function(plate) {
     mutate(concentration = ref_conc / DILUTION_FACTORS)
 }
 ```
+
+A function that retrieves the samples data from a plate:
 
 ```{r}
 process_samples <- function(plate, std_crv) {
@@ -244,19 +276,23 @@ process_samples <- function(plate, std_crv) {
 An example on the first plate:
 
 ```{r}
-plate <- plates[[1]]
+plate <- plates$Plate_01_hcdc
 ```
 
-The 4 commands:
+The 4 steps:
 
 ```{r}
+# step 1: retrieve the anti-toxins data:
 anti_toxins <- get_antitoxins(plate)
+# step 2: generate the standard curve with CI in the form of a dataframe:
 standard_curve_df <- standard_curve_data(anti_toxins, nls4PL)
+# step 3: convert the standard curve dataframe into a standard curve function:
 standard_curve <- data2function(standard_curve_df)
+# step 4: convert the OD of the samples into log-concentrations:
 samples <- process_samples(plate, standard_curve)
 ```
 
-The plots:
+The plots of the standard curve, with and without data:
 
 ```{r}
 plot_standard_curve(standard_curve_df)
