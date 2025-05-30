@@ -17,6 +17,12 @@ par2 <- function(...) par(..., mgp = c(1.5, .5, 0), bty = "n")
 knitr::knit_hooks$set(
   margin1 = function(before, options, envir) {
     if (before) par2(plt = c(.105, .97, .15, .95)) else NULL
+  },
+  margin2 = function(before, options, envir) {
+    if (before) par2(plt = c(.17, .97, .23, .95)) else NULL
+  },
+  margin3 = function(before, options, envir) {
+    if (before) par2(plt = c(.12, .88, .2, .99)) else NULL
   })
 
 eps <- .8
@@ -62,7 +68,7 @@ datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
 Required packages:
 
 ```{r}
-required_packages <- c("dplyr", "tibble", "readxl", "purrr", "mvtnorm")
+required_packages <- c("dplyr", "tibble", "readxl", "purrr", "stringr", "mvtnorm")
 ```
 
 Installing those that are not installed:
@@ -77,6 +83,7 @@ Loading some for interactive use:
 ```{r message = FALSE}
 library(dplyr)
 library(purrr)
+library(stringr)
 ```
 
 ## General functions
@@ -108,6 +115,21 @@ A function that splits the rows of a dataframe into a list of dataframes:
 ```{r}
 rowsplit <- function(df) split(df, 1:nrow(df))
 ```
+
+A function that simulates data from an `nls` object:
+
+```{r}
+simulate_nls <- function(object, newdata, nb = 9999) {
+  nb |>
+    mvtnorm::rmvnorm(coef(object), vcov(object)) |> 
+    as.data.frame() |>
+    rowsplit() |> 
+    map(as.list) |> 
+    map(~ c(.x, newdata)) |> 
+    map_dfc(eval, expr = parse(text = as.character(formula(object))[3]))
+}
+```
+
 
 ## Preparing the data
 
@@ -189,18 +211,12 @@ dataframe:
 
 ```{r}
 standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
-  fitted <- model(df)
   log_concentration <- log(df$concentration)
   logc <- seq(min(log_concentration), max(log_concentration), le = le)
   alpha <- (1 - level) / 2
-  
-  nb |>
-    mvtnorm::rmvnorm(coef(fitted), vcov(fitted)) |> 
-    as.data.frame() |>
-    rowsplit() |> 
-    map(as.list) |> 
-    map(~ c(.x, concentration = list(exp(logc)))) |> 
-    map_dfc(eval, expr = parse(text = as.character(formula(fitted))[3])) |> 
+  df |> 
+    model() |> 
+    simulate_nls(list(concentration = exp(logc)), nb) |> 
     apply(1, quantile, c(alpha, .5, 1 - alpha)) |>
     t() |> as.data.frame() |> 
     setNames(c("lower", "median", "upper")) |> 
@@ -208,27 +224,13 @@ standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
 }
 ```
 
-```{r eval = FALSE, include = FALSE}
-simulate_nls <- function(object, newdata, nb) {
-  force(object)
-  local_object <- object
-  1:nb |> 
-    map_dfc(function(i) {
-          mvtnorm::rmvnorm(1, coef(local_object), vcov(local_object)) |> 
-            as.data.frame() |> 
-            as.vector() |> 
-            unlist() |>
-            local_object$m$setPars()
-          predict(local_object, newdata)})
-}
-```
-
 A function that plots the output of `standard_curve_data()` with or without data:
 
 ```{r}
-plot_standard_curve <- function(scdf, data = NULL) {
+plot_standard_curve <- function(scdf, data = NULL, ylim = NULL) {
   with(scdf, {
-    plot(logc, scdf$lower, type = "n", ylim = c(0, max(upper, data$od)),
+    if (is.null(ylim)) ylim <- c(0, max(upper, data$od))
+    plot(logc, scdf$lower, type = "n", ylim = ylim,
          xlab = "log(concentration)", ylab = "optical density")
     polygon2(logc, lower, upper, col = adjustcolor(color_model, .2))
     lines2(logc, median)
@@ -302,6 +304,8 @@ plot_standard_curve(standard_curve_df, anti_toxins)
 
 ## Processing all the plates
 
+The four steps applied to all the plates:
+
 ```{r eval = FALSE}
 anti_toxins <- map(plates, get_antitoxins)
 standard_curve_df <- map(anti_toxins, standard_curve_data, nls4PL)
@@ -320,6 +324,95 @@ if (file_exists("standard_curve_df.rds")) {
 standard_curves <- map(standard_curve_df, data2function)
 samples <- map2(plates, standard_curves, process_samples)
 ```
+
+Showing all the standard curves:
+
+```{r}
+xs <- map(standard_curve_df, ~ .x$logc)
+ys <- map(standard_curve_df, ~ .x$median)
+plot(unlist(xs), unlist(ys), type = "n",
+     xlab = "log(concentration)", ylab = "optical density")
+walk2(xs, ys, lines2)
+```
+
+Showing the standard curves and data points, plate by plate:
+
+```{r fig.width = 8.3, fig.height = 15.8, margin1 = FALSE, margin2 = TRUE}
+titles <- anti_toxins |> 
+  names() |> 
+  str_remove("_hcdc") |> 
+  str_replace("_", " ")
+
+mcx <- 3 / 2
+opar <- par(mfrow = c(8, 3), mex = mcx, cex.axis = mcx, cex.lab = mcx, cex.main = mcx)
+
+walk(seq_along(anti_toxins), function(i) {
+  plot_standard_curve(standard_curve_df[[i]], anti_toxins[[i]], ylim = c(- .2, 4))
+  mtext(titles[i], line = -4, at = -4)
+})
+
+par(opar)
+```
+
+```{r fig.width = 4, fig.height = 7.5, margin1 = FALSE, margin3 = TRUE}
+xs <- map(standard_curve_df, ~ .x$logc)
+ys <- map(standard_curve_df, ~ .x$median)
+
+dilutions_factors <- c(50, 100, 200)
+dilutions <- map_dfc(dilutions_factors,
+    function(x) map(samples, ~ .x |>
+                               filter(DILUTION_FACTORS == x) |> 
+                               pull(RESULT)) |> unlist()) |> 
+  setNames(paste0("dilution", dilutions_factors))
+
+xlim <- c(-.3, 4.1)
+hist2 <- function(x, y, ...) {
+  plot(unlist(ys), unlist(xs), type = "n", xaxs = "i", xlim = xlim,
+     xlab = "optical density", ylab = "log(concentration)")
+  walk2(ys, xs, lines2)
+  par(new = TRUE)
+  hist(x, breaks = seq(0, 4, .1), col = color_data, xaxs = "i",
+       axes = FALSE, ann = FALSE, xlim = xlim, ylim = c(0, 300), , ...)
+  axis(4); mtext("number of samples", 4, 1.5)
+  abline(v = c(1, 3), lty = 2)
+  mtext(y, 3, -1)
+}
+
+mcx <- 3 / 2
+opar <- par(mfrow = c(3, 1), mex = mcx, cex.axis = mcx, cex.lab = mcx, cex.main = mcx)
+walk2(dilutions, paste("Dilution", c(50, 100, 200)), hist2)
+par(opar)
+```
+
+```{r}
+samples$Plate_01_hcdc |> 
+  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS))
+```
+
+
+```{r eval=F}
+nb_replicates <- unique(table(samples$Plate_01_hcdc$HCDC_SAMPLE_ID))
+nb <- nrow(samples$Plate_01_hcdc)
+colors <- rep(2:4, nb / nb_replicates)
+vertical_lines <- seq(nb_replicates + 1, tail(tmp, nb_replicates + 1)[1], nb_replicates + 1)
+tmp <- (1:(nb + nb / nb_replicates - 1))
+xs <- tmp[-vertical_lines]
+samples$Plate_01_hcdc |> 
+  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS)) |> 
+  with({
+    plot(xs, median, col = colors,
+         axes = FALSE, xlab = NA, ylab = "concentration (IU/mL)")
+    axis(2)
+    segments(xs, lower, xs, upper, col = colors)
+  })
+abline(v = vertical_lines, col = "grey")
+```
+
+
+
+
+
+
 
 ```{r}
 NA_locations <- function(x) {
@@ -358,9 +451,3 @@ samples[which(ranges$min < threshold)] |>
 
 
 
-
-## Plots
-
-```{r fig.width = 8, fig.height = 5.25, margin1 = FALSE, margin3 = TRUE}
-# this is for a 3 x 3 plot
-```
