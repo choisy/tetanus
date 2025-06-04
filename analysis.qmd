@@ -340,6 +340,8 @@ plot_standard_curve(standard_curve_df, anti_toxins)
 
 ## Processing all the plates
 
+### The standard curves
+
 The four steps applied to all the plates:
 
 ```{r eval = FALSE}
@@ -368,6 +370,7 @@ xs <- map(standard_curve_df, ~ .x$logc)
 ys <- map(standard_curve_df, ~ .x$median)
 plot_frame(unlist(xs), unlist(ys))
 walk2(xs, ys, lines2)
+abline(v = log(.1 / c(1, 50, 100, 200)), lwd = lwd_val, col = color_data)
 ```
 
 Showing the standard curves and data points, plate by plate:
@@ -408,7 +411,7 @@ hist2 <- function(x, y, ...) {
   hist(x, breaks = seq(0, 4, .1), col = color_data, xaxs = "i",
        axes = FALSE, ann = FALSE, xlim = xlim, ylim = c(0, 300), , ...)
   axis(4); mtext("number of samples", 4, 1.5)
-  abline(v = c(.5, 3.2), lty = 2)
+  abline(v = c(.8, 3.8), lty = 2)
   mtext(y, 3, -1, font = 2)
 }
 
@@ -416,6 +419,8 @@ opar <- par_mfrow(c(3, 1))
 walk2(dilutions, paste("Dilution", dilutions_factors), hist2)
 par(opar)
 ```
+
+### The concentrations estimates
 
 Plotting the concentration estimates per plates and dilution for all the samples:
 
@@ -445,6 +450,8 @@ opar <- par_mfrow(c(11, 2))
 walk2(samples, titles, ~ {plot_concentrations(.x); mtext(.y)})
 par(opar)
 ```
+
+### Looking at the dilutions
 
 Showing where estimates are possible (in green). When they are not possible, it's
 either because the concentration is too high (in red), or because the concentration is
@@ -490,27 +497,58 @@ walk(samples, plot_heatmap)
 par(opar)
 ```
 
-Number of samples for which a dilution of 200 is not enough to estimate the
-concentration:
+Number of samples for which a concentration can be estimated:
 
 ```{r}
 nb_NA <- samples |> 
   bind_rows() |> 
   mutate(total =  is.na(lower) + is.na(median) + is.na(upper))
 
+# with full confidence interval:
 nb_NA |> 
   group_by(HCDC_SAMPLE_ID) |>
-  summarise(total = sum(total)) |> 
-  filter(total > 8) |> 
-  nrow()
+  summarise(OK = any(total < 1)) |> 
+  pull(OK) |> 
+  sum()
+
+# with partial confidence interval:
+nb_NA |> 
+  group_by(HCDC_SAMPLE_ID) |>
+  summarise(OK = any(total < 2)) |> 
+  pull(OK) |> 
+  sum()
 ```
 
 Out of 481 samples,
 
-* there is 2 sample (0.4 %) for which a dilution of 50 is already too much in order to
+* there are 2 sample (0.4 %) for which a dilution of 50 is already too much in order to
 estimate the lower bound of its 95% confidence interval;
-* there are 26 samples (5.4 %) for which a dilution of 200 is not enough in order to do
-any estimation of the concentration.
+* there are 340 samples (70.6 %) for which the concentration can be estimated with a
+95% confidence interval.
+* and an additional 48 samples (10.0 %) for which the concentration can be estimated
+with a partial 95% confidence interval.
+
+Let's look at the optimal dilution for each sample:
+
+```{r warning = FALSE}
+optimal_dilutions <- samples |> 
+  bind_rows() |> 
+  select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) |> 
+  mutate(across(c(lower, median, upper), exp),
+         ci_range   = upper - lower) |> 
+  group_by(HCDC_SAMPLE_ID) |> 
+  filter(ci_range == min(ci_range, na.rm = TRUE)) |> 
+  ungroup() |> 
+  pull(DILUTION_FACTORS) |> 
+  table()
+
+optimal_dilutions
+round(100 * optimal_dilutions / 340, 1)
+```
+
+Meaning that, out of the 340 samples for which an estimate with confidence interval can
+be generate, 29 (8.5%) have an optimal dilution of 50, 33 (9.7%) have an optimal
+dilution of 100 and 278 (81.8%) have an optimal dilution of 200.
 
 The number of missing estimates (point or any of tbe bounds of the confidence interval)
 as a function of the dilution:
@@ -603,12 +641,12 @@ identified as negative:
 ```{r}
 neg_contr |> 
   group_by(plate) |> 
-  filter(ci_range ==min(ci_range, na.rm = TRUE)) |> 
+  filter(ci_range == min(ci_range, na.rm = TRUE)) |> 
   ungroup() |> 
   print_all()
 ```
 
-Looking at what happens with place 7:
+Looking at what happens with plate 7:
 
 ```{r}
 filter(neg_contr, plate == "Plate_07_hcdc")

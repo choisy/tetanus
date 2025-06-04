@@ -113,7 +113,12 @@ window.Quarto = {
   <li><a href="#general-functions" id="toc-general-functions" class="nav-link" data-scroll-target="#general-functions"><span class="header-section-number">3</span> General functions</a></li>
   <li><a href="#preparing-the-data" id="toc-preparing-the-data" class="nav-link" data-scroll-target="#preparing-the-data"><span class="header-section-number">4</span> Preparing the data</a></li>
   <li><a href="#specific-functions" id="toc-specific-functions" class="nav-link" data-scroll-target="#specific-functions"><span class="header-section-number">5</span> Specific functions</a></li>
-  <li><a href="#processing-all-the-plates" id="toc-processing-all-the-plates" class="nav-link" data-scroll-target="#processing-all-the-plates"><span class="header-section-number">6</span> Processing all the plates</a></li>
+  <li><a href="#processing-all-the-plates" id="toc-processing-all-the-plates" class="nav-link" data-scroll-target="#processing-all-the-plates"><span class="header-section-number">6</span> Processing all the plates</a>
+  <ul class="collapse">
+  <li><a href="#the-standard-curves" id="toc-the-standard-curves" class="nav-link" data-scroll-target="#the-standard-curves"><span class="header-section-number">6.1</span> The standard curves</a></li>
+  <li><a href="#the-concentrations-estimates" id="toc-the-concentrations-estimates" class="nav-link" data-scroll-target="#the-concentrations-estimates"><span class="header-section-number">6.2</span> The concentrations estimates</a></li>
+  <li><a href="#looking-at-the-dilutions" id="toc-looking-at-the-dilutions" class="nav-link" data-scroll-target="#looking-at-the-dilutions"><span class="header-section-number">6.3</span> Looking at the dilutions</a></li>
+  </ul></li>
   <li><a href="#negative-controls" id="toc-negative-controls" class="nav-link" data-scroll-target="#negative-controls"><span class="header-section-number">7</span> Negative controls</a></li>
   </ul>
 </nav>
@@ -399,6 +404,8 @@ window.Quarto = {
 </section>
 <section id="processing-all-the-plates" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="processing-all-the-plates"><span class="header-section-number">6</span> Processing all the plates</h2>
+<section id="the-standard-curves" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="the-standard-curves"><span class="header-section-number">6.1</span> The standard curves</h3>
 <p>The four steps applied to all the plates:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>anti_toxins <span class="ot">&lt;-</span> <span class="fu">map</span>(plates, get_antitoxins)</span>
@@ -411,7 +418,8 @@ window.Quarto = {
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>xs <span class="ot">&lt;-</span> <span class="fu">map</span>(standard_curve_df, <span class="sc">~</span> .x<span class="sc">$</span>logc)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>ys <span class="ot">&lt;-</span> <span class="fu">map</span>(standard_curve_df, <span class="sc">~</span> .x<span class="sc">$</span>median)</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_frame</span>(<span class="fu">unlist</span>(xs), <span class="fu">unlist</span>(ys))</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">walk2</span>(xs, ys, lines2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">walk2</span>(xs, ys, lines2)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">log</span>(.<span class="dv">1</span> <span class="sc">/</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>)), <span class="at">lwd =</span> lwd_val, <span class="at">col =</span> color_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -461,7 +469,7 @@ window.Quarto = {
 <span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(x, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, .<span class="dv">1</span>), <span class="at">col =</span> color_data, <span class="at">xaxs =</span> <span class="st">"i"</span>,</span>
 <span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">ann =</span> <span class="cn">FALSE</span>, <span class="at">xlim =</span> xlim, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">300</span>), , ...)</span>
 <span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">4</span>); <span class="fu">mtext</span>(<span class="st">"number of samples"</span>, <span class="dv">4</span>, <span class="fl">1.5</span>)</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">3.2</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(.<span class="dv">8</span>, <span class="fl">3.8</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
 <span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mtext</span>(y, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
 <span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
@@ -476,6 +484,9 @@ window.Quarto = {
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="the-concentrations-estimates" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="the-concentrations-estimates"><span class="header-section-number">6.2</span> The concentrations estimates</h3>
 <p>Plotting the concentration estimates per plates and dilution for all the samples:</p>
 <div class="cell" data-layout-align="center" data-margin4="true">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>plot_concentrations <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
@@ -510,6 +521,9 @@ window.Quarto = {
 </div>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="looking-at-the-dilutions" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="looking-at-the-dilutions"><span class="header-section-number">6.3</span> Looking at the dilutions</h3>
 <p>Showing where estimates are possible (in green). When they are not possible, it’s either because the concentration is too high (in red), or because the concentration is too low (in orange). Each of the 22 columns represents a plate and each of the 22 rows with each column represents a sample. Within each sample, the 3 columns are for the point estimates of the concentrations (middle) with 95% confidence interval (lower and upper bounds in the left and right columns respectively) and the 3 rows are for the 3 dilutions values (50, 100 and 200 from top to bottom):</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to add missing values if there are less than 22 samples in a plate:</span></span>
@@ -553,70 +567,94 @@ window.Quarto = {
 </div>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(opar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Number of samples for which a dilution of 200 is not enough to estimate the concentration:</p>
+<p>Number of samples for which a concentration can be estimated:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>nb_NA <span class="ot">&lt;-</span> samples <span class="sc">|&gt;</span> </span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total =</span>  <span class="fu">is.na</span>(lower) <span class="sc">+</span> <span class="fu">is.na</span>(median) <span class="sc">+</span> <span class="fu">is.na</span>(upper))</span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>nb_NA <span class="sc">|&gt;</span> </span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HCDC_SAMPLE_ID) <span class="sc">|&gt;</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">sum</span>(total)) <span class="sc">|&gt;</span> </span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total <span class="sc">&gt;</span> <span class="dv">8</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># with full confidence interval:</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>nb_NA <span class="sc">|&gt;</span> </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HCDC_SAMPLE_ID) <span class="sc">|&gt;</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">OK =</span> <span class="fu">any</span>(total <span class="sc">&lt;</span> <span class="dv">1</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(OK) <span class="sc">|&gt;</span> </span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 26</code></pre>
+<pre><code>[1] 340</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with partial confidence interval:</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>nb_NA <span class="sc">|&gt;</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HCDC_SAMPLE_ID) <span class="sc">|&gt;</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">OK =</span> <span class="fu">any</span>(total <span class="sc">&lt;</span> <span class="dv">2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(OK) <span class="sc">|&gt;</span> </span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 388</code></pre>
 </div>
 </div>
 <p>Out of 481 samples,</p>
 <ul>
-<li>there is 2 sample (0.4 %) for which a dilution of 50 is already too much in order to estimate the lower bound of its 95% confidence interval;</li>
-<li>there are 26 samples (5.4 %) for which a dilution of 200 is not enough in order to do any estimation of the concentration.</li>
+<li>there are 2 sample (0.4 %) for which a dilution of 50 is already too much in order to estimate the lower bound of its 95% confidence interval;</li>
+<li>there are 340 samples (70.6 %) for which the concentration can be estimated with a 95% confidence interval.</li>
+<li>and an additional 48 samples (10.0 %) for which the concentration can be estimated with a partial 95% confidence interval.</li>
 </ul>
+<p>Let’s look at the optimal dilution for each sample:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>optimal_dilutions <span class="ot">&lt;-</span> samples <span class="sc">|&gt;</span> </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) <span class="sc">|&gt;</span> </span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(lower, median, upper), exp),</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">ci_range   =</span> upper <span class="sc">-</span> lower) <span class="sc">|&gt;</span> </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HCDC_SAMPLE_ID) <span class="sc">|&gt;</span> </span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ci_range <span class="sc">==</span> <span class="fu">min</span>(ci_range, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(DILUTION_FACTORS) <span class="sc">|&gt;</span> </span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table</span>()</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>optimal_dilutions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ 50 100 200 
+ 29  33 278 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> optimal_dilutions <span class="sc">/</span> <span class="dv">340</span>, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  50  100  200 
+ 8.5  9.7 81.8 </code></pre>
+</div>
+</div>
+<p>Meaning that, out of the 340 samples for which an estimate with confidence interval can be generate, 29 (8.5%) have an optimal dilution of 50, 33 (9.7%) have an optimal dilution of 100 and 278 (81.8%) have an optimal dilution of 200.</p>
 <p>The number of missing estimates (point or any of tbe bounds of the confidence interval) as a function of the dilution:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function that adds axes and grid:</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>add_grid <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">1</span>); <span class="fu">axis</span>(<span class="dv">2</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>)</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>), <span class="at">col =</span> <span class="st">"grey"</span>)</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>plot3 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) {</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot2</span>(..., <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">"dilution"</span>, <span class="at">ylab =</span> <span class="st">"number of missing estimates"</span>)</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparing the data:</span></span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>nb_missing <span class="ot">&lt;-</span> nb_NA <span class="sc">|&gt;</span> </span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(DILUTION_FACTORS, total) <span class="sc">|&gt;</span> </span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>mean_nb_missing <span class="ot">&lt;-</span> nb_missing <span class="sc">|&gt;</span> </span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(DILUTION_FACTORS) <span class="sc">|&gt;</span> </span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mean =</span> <span class="fu">sum</span>(total <span class="sc">*</span> n) <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
-<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span> total,  <span class="sc">-</span> n) <span class="sc">|&gt;</span> </span>
-<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unique</span>()</span>
-<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a><span class="co"># The plot:</span></span>
-<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(nb_NA, <span class="fu">plot3</span>(<span class="fu">jitter</span>(DILUTION_FACTORS), <span class="fu">jitter</span>(total)))</span>
-<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(mean_nb_missing, <span class="fu">lines</span>(DILUTION_FACTORS, mean, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="dv">2</span>))</span>
-<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a><span class="fu">add_grid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="analysis_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>An alternative plot:</p>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(nb_missing, <span class="fu">plot3</span>(DILUTION_FACTORS, total, <span class="at">cex =</span> <span class="fu">sqrt</span>(n) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">min</span>(n)), <span class="at">pch =</span> <span class="dv">19</span>,</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">45</span>, <span class="dv">205</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="fl">3.3</span>)))</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(mean_nb_missing, <span class="fu">lines</span>(DILUTION_FACTORS, mean, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="dv">2</span>))</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">add_grid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function that adds axes and grid:</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>add_grid <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">1</span>); <span class="fu">axis</span>(<span class="dv">2</span>, <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>), <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>plot3 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) {</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot2</span>(..., <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">xlab =</span> <span class="st">"dilution"</span>, <span class="at">ylab =</span> <span class="st">"number of missing estimates"</span>)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparing the data:</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>nb_missing <span class="ot">&lt;-</span> nb_NA <span class="sc">|&gt;</span> </span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(DILUTION_FACTORS, total) <span class="sc">|&gt;</span> </span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tally</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>mean_nb_missing <span class="ot">&lt;-</span> nb_missing <span class="sc">|&gt;</span> </span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(DILUTION_FACTORS) <span class="sc">|&gt;</span> </span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mean =</span> <span class="fu">sum</span>(total <span class="sc">*</span> n) <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span> total,  <span class="sc">-</span> n) <span class="sc">|&gt;</span> </span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unique</span>()</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a><span class="co"># The plot:</span></span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(nb_NA, <span class="fu">plot3</span>(<span class="fu">jitter</span>(DILUTION_FACTORS), <span class="fu">jitter</span>(total)))</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(mean_nb_missing, <span class="fu">lines</span>(DILUTION_FACTORS, mean, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="dv">2</span>))</span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a><span class="fu">add_grid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -625,88 +663,103 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>An alternative plot:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(nb_missing, <span class="fu">plot3</span>(DILUTION_FACTORS, total, <span class="at">cex =</span> <span class="fu">sqrt</span>(n) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">min</span>(n)), <span class="at">pch =</span> <span class="dv">19</span>,</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">45</span>, <span class="dv">205</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="fl">3.3</span>)))</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(mean_nb_missing, <span class="fu">lines</span>(DILUTION_FACTORS, mean, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="dv">2</span>))</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">add_grid</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="analysis_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="negative-controls" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="negative-controls"><span class="header-section-number">7</span> Negative controls</h2>
 <p>A function that retrieves the negative controls from 1 plate:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>make_blanks_management2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (discount_blank) {</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cf">function</span>(x) <span class="fu">mutate</span>(x,</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">"NEGATIVE"</span>),</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">~</span> .x <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(<span class="fu">starts_with</span>(<span class="st">"BLANK"</span>))))))</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  I</span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>manage_blanks2 <span class="ot">&lt;-</span> <span class="fu">make_blanks_management2</span>()</span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>get_negatives_controls <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">|&gt;</span> </span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">manage_blanks2</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"NEGATIVE"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"dilution"</span>, <span class="at">values_to =</span> <span class="st">"od"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(dilution, <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(.x, <span class="st">"NEGATIVE_"</span>) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()))</span>
-<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>make_blanks_management2 <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (discount_blank) {</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cf">function</span>(x) <span class="fu">mutate</span>(x,</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">"NEGATIVE"</span>),</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>                                     <span class="sc">~</span> .x <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">c_across</span>(<span class="fu">starts_with</span>(<span class="st">"BLANK"</span>))))))</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  I</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>manage_blanks2 <span class="ot">&lt;-</span> <span class="fu">make_blanks_management2</span>()</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>get_negatives_controls <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">|&gt;</span> </span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">manage_blanks2</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"NEGATIVE"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"dilution"</span>, <span class="at">values_to =</span> <span class="st">"od"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(dilution, <span class="sc">~</span> stringr<span class="sc">::</span><span class="fu">str_remove</span>(.x, <span class="st">"NEGATIVE_"</span>) <span class="sc">|&gt;</span> <span class="fu">as.integer</span>()))</span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Retrieving all the negative controls of all the plates and computing the concentrations:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>neg_contr <span class="ot">&lt;-</span> plates <span class="sc">|&gt;</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(get_negatives_controls, <span class="at">.id =</span> <span class="st">"plate"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concentration =</span> <span class="fu">list</span>(<span class="fu">exp</span>(<span class="fu">standard_curve</span>(od)))) <span class="sc">|&gt;</span> </span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest_wider</span>(concentration) <span class="sc">|&gt;</span> </span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(lower, median, upper), <span class="sc">~</span> .x <span class="sc">*</span> dilution),</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">ci_range   =</span> upper <span class="sc">-</span> lower,</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">thresh0_01 =</span> upper <span class="sc">&lt;</span> .<span class="dv">01</span>,</span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">thresh0_10 =</span> upper <span class="sc">&lt;</span> .<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>neg_contr <span class="ot">&lt;-</span> plates <span class="sc">|&gt;</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(get_negatives_controls, <span class="at">.id =</span> <span class="st">"plate"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concentration =</span> <span class="fu">list</span>(<span class="fu">exp</span>(<span class="fu">standard_curve</span>(od)))) <span class="sc">|&gt;</span> </span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest_wider</span>(concentration) <span class="sc">|&gt;</span> </span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(lower, median, upper), <span class="sc">~</span> .x <span class="sc">*</span> dilution),</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">ci_range   =</span> upper <span class="sc">-</span> lower,</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">thresh0_01 =</span> upper <span class="sc">&lt;</span> .<span class="dv">01</span>,</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">thresh0_10 =</span> upper <span class="sc">&lt;</span> .<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Selecting the best dilution for each sample and checking that the negative control are identified as negative:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>neg_contr <span class="sc">|&gt;</span> </span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(plate) <span class="sc">|&gt;</span> </span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ci_range <span class="sc">==</span><span class="fu">min</span>(ci_range, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print_all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>neg_contr <span class="sc">|&gt;</span> </span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(plate) <span class="sc">|&gt;</span> </span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ci_range <span class="sc">==</span> <span class="fu">min</span>(ci_range, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print_all</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 22 × 9
    plate      dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
    &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
- 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0400  0.00535 FALSE      TRUE      
- 2 Plate_02_…       50 1.45  0.0274 0.0298 0.0323  0.00491 FALSE      TRUE      
- 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0627  0.00752 FALSE      TRUE      
+ 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0400  0.00539 FALSE      TRUE      
+ 2 Plate_02_…       50 1.45  0.0273 0.0298 0.0323  0.00496 FALSE      TRUE      
+ 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0628  0.00755 FALSE      TRUE      
  4 Plate_05_…       50 1.84  0.0376 0.0403 0.0432  0.00557 FALSE      TRUE      
- 5 Plate_06_…       50 1.72  0.0343 0.0368 0.0396  0.00532 FALSE      TRUE      
- 6 Plate_07_…      100 1.24  0.0445 0.0490 0.0536  0.00908 FALSE      TRUE      
- 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00460 FALSE      TRUE      
- 8 Plate_09_…       50 1.69  0.0334 0.0359 0.0386  0.00526 FALSE      TRUE      
- 9 Plate_10_…       50 1.58  0.0305 0.0329 0.0356  0.00510 FALSE      TRUE      
-10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00458 FALSE      TRUE      
-11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00415 FALSE      TRUE      
-12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00411 FALSE      TRUE      
-13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00471 FALSE      TRUE      
-14 Plate_15_…       50 0.826 0.0118 0.0139 0.0159  0.00419 FALSE      TRUE      
-15 Plate_16_…       50 0.961 0.0155 0.0175 0.0196  0.00411 FALSE      TRUE      
-16 Plate_17_…       50 1.04  0.0175 0.0195 0.0217  0.00419 FALSE      TRUE      
-17 Plate_18_…       50 1.62  0.0316 0.0340 0.0367  0.00517 FALSE      TRUE      
-18 Plate_19_…       50 1.83  0.0372 0.0399 0.0427  0.00553 FALSE      TRUE      
-19 Plate_20_…       50 1.36  0.0252 0.0275 0.0300  0.00478 FALSE      TRUE      
-20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00492 FALSE      TRUE      
-21 Plate_22_…       50 0.847 0.0124 0.0144 0.0165  0.00413 FALSE      TRUE      
-22 Plate_23_…       50 1.03  0.0172 0.0193 0.0214  0.00417 FALSE      TRUE      </code></pre>
+ 5 Plate_06_…       50 1.72  0.0343 0.0369 0.0396  0.00537 FALSE      TRUE      
+ 6 Plate_07_…      100 1.24  0.0444 0.0490 0.0536  0.00919 FALSE      TRUE      
+ 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00465 FALSE      TRUE      
+ 8 Plate_09_…       50 1.69  0.0333 0.0359 0.0386  0.00531 FALSE      TRUE      
+ 9 Plate_10_…       50 1.58  0.0304 0.0329 0.0355  0.00514 FALSE      TRUE      
+10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00463 FALSE      TRUE      
+11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00414 FALSE      TRUE      
+12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00410 FALSE      TRUE      
+13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00476 FALSE      TRUE      
+14 Plate_15_…       50 0.826 0.0117 0.0139 0.0159  0.00417 FALSE      TRUE      
+15 Plate_16_…       50 0.961 0.0154 0.0175 0.0196  0.00414 FALSE      TRUE      
+16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00427 FALSE      TRUE      
+17 Plate_18_…       50 1.62  0.0315 0.0341 0.0367  0.00521 FALSE      TRUE      
+18 Plate_19_…       50 1.83  0.0372 0.0399 0.0427  0.00555 FALSE      TRUE      
+19 Plate_20_…       50 1.36  0.0251 0.0275 0.0299  0.00480 FALSE      TRUE      
+20 Plate_21_…       50 1.46  0.0274 0.0299 0.0324  0.00497 FALSE      TRUE      
+21 Plate_22_…       50 0.847 0.0124 0.0145 0.0165  0.00412 FALSE      TRUE      
+22 Plate_23_…       50 1.03  0.0171 0.0193 0.0214  0.00425 FALSE      TRUE      </code></pre>
 </div>
 </div>
-<p>Looking at what happens with place 7:</p>
+<p>Looking at what happens with plate 7:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(neg_contr, plate <span class="sc">==</span> <span class="st">"Plate_07_hcdc"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(neg_contr, plate <span class="sc">==</span> <span class="st">"Plate_07_hcdc"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 9
   plate       dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
   &lt;chr&gt;          &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
-1 Plate_07_h…       50 2.70  0.0688 0.0738 0.0794  0.0105  FALSE      TRUE      
-2 Plate_07_h…      100 1.24  0.0445 0.0490 0.0536  0.00908 FALSE      TRUE      
-3 Plate_07_h…      200 0.702 0.0275 0.0407 0.0497  0.0222  FALSE      TRUE      </code></pre>
+1 Plate_07_h…       50 2.70  0.0688 0.0738 0.0793  0.0105  FALSE      TRUE      
+2 Plate_07_h…      100 1.24  0.0444 0.0490 0.0536  0.00919 FALSE      TRUE      
+3 Plate_07_h…      200 0.702 0.0275 0.0407 0.0498  0.0222  FALSE      TRUE      </code></pre>
 </div>
 </div>
 </section>
