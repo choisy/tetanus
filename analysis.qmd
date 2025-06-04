@@ -65,13 +65,6 @@ saveRDS2 <- function(object, file) saveRDS(object, make_path2(file))
 datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
 ```
 
-Whether we discount the blank values or not:
-
-```{r}
-discount_blank <- FALSE
-```
-
-
 ## Packages
 
 Required packages:
@@ -185,23 +178,13 @@ add_sample_id <- function(x) {
 Reading and arranging the data:
 
 ```{r}
-make_blanks_management1 <- function() {
-  if (discount_blank) {
-    return(function(x) mutate(x, od = RESULT - mean(c_across(starts_with("BLANK")))))
-  }
-  function(x) mutate(x, od = RESULT)
-}
-
-manage_blanks1 <- make_blanks_management1()
-
 plates <- datafile |>
   excel_sheets2() |> 
   (\(.x) .x[grepl("Plate", .x)])() |> 
   (\(.x) setNames(map(.x, read_excel2, file = datafile), .x))() |> 
   map(~ setNames(.x, toupper(names(.x)))) |> 
   remove_empty_plates() |> 
-  map(add_sample_id) |> 
-  map(manage_blanks1)
+  map(add_sample_id)
 ```
 
 ## Specific functions
@@ -237,8 +220,8 @@ good_guess4PL <- function(x, y, eps = 1) {
 }
 
 nls4PL <- function(df) {
-  nls(od ~ d + (a - d) / (1 + exp((log(concentration) - c) * b)),
-      df, with(df, good_guess4PL(log(concentration), od)))
+  nls(RESULT ~ d + (a - d) / (1 + exp((log(concentration) - c) * b)),
+      df, with(df, good_guess4PL(log(concentration), RESULT)))
 }
 ```
 
@@ -265,12 +248,12 @@ A function that plots the output of `standard_curve_data()` with or without data
 ```{r}
 plot_standard_curve <- function(scdf, data = NULL, ylim = NULL) {
   with(scdf, {
-    if (is.null(ylim)) ylim <- c(0, max(upper, data$od))
+    if (is.null(ylim)) ylim <- c(0, max(upper, data$RESULT))
     plot_frame(logc, scdf$lower, ylim = ylim)
     polygon2(logc, lower, upper, col = adjustcolor(color_model, .2))
     lines2(logc, median)
   })
-  if (! is.null(data)) with(data, points2(log(concentration), od))
+  if (! is.null(data)) with(data, points2(log(concentration), RESULT))
 }
 ```
 
@@ -382,12 +365,10 @@ titles <- anti_toxins |>
   str_replace("_", " ")
 
 opar <- par_mfrow(c(8, 3))
-
 walk(seq_along(anti_toxins), function(i) {
   plot_standard_curve(standard_curve_df[[i]], anti_toxins[[i]], ylim = c(- .2, 4))
   mtext(titles[i], line = -4, at = -4)
 })
-
 par(opar)
 ```
 
@@ -599,20 +580,8 @@ add_grid()
 A function that retrieves the negative controls from 1 plate:
 
 ```{r}
-make_blanks_management2 <- function() {
-  if (discount_blank) {
-    return(function(x) mutate(x,
-                              across(starts_with("NEGATIVE"),
-                                     ~ .x - mean(c_across(starts_with("BLANK"))))))
-  }
-  I
-}
-
-manage_blanks2 <- make_blanks_management2()
-
 get_negatives_controls <- function(x) {
   x |> 
-    manage_blanks2() |> 
     select(starts_with("NEGATIVE")) |> 
     unique() |> 
     tidyr::pivot_longer(everything(), names_to = "dilution", values_to = "od") |> 
