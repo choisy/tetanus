@@ -264,7 +264,7 @@ A function that converts a dataframe into a function:
 ```{r}
 data2function <- function(df) {
   with(df, {
-    make_pred_function <- function(data) function(x) approx(data, logc, x)$y
+    make_pred_function <- function(data) approxfun(data, logc)
     pred_lwr <- make_pred_function(upper)
     pred_mdi <- make_pred_function(median)
     pred_upp <- make_pred_function(lower)

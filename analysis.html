@@ -322,7 +322,7 @@ window.Quarto = {
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data2function <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(df, {</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    make_pred_function <span class="ot">&lt;-</span> <span class="cf">function</span>(data) <span class="cf">function</span>(x) <span class="fu">approx</span>(data, logc, x)<span class="sc">$</span>y</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    make_pred_function <span class="ot">&lt;-</span> <span class="cf">function</span>(data) <span class="fu">approxfun</span>(data, logc)</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    pred_lwr <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(upper)</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    pred_mdi <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(median)</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    pred_upp <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(lower)</span>
