@@ -65,6 +65,12 @@ saveRDS2 <- function(object, file) saveRDS(object, make_path2(file))
 datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
 ```
 
+Whether we discount the blank values or not:
+
+```{r}
+discount_blank <- FALSE
+```
+
 
 ## Packages
 
@@ -179,6 +185,15 @@ add_sample_id <- function(x) {
 Reading and arranging the data:
 
 ```{r}
+make_blanks_management1 <- function() {
+  if (discount_blank) {
+    return(function(x) mutate(x, od = RESULT - mean(c_across(starts_with("BLANK")))))
+  }
+  function(x) mutate(x, od = RESULT)
+}
+
+manage_blanks1 <- make_blanks_management1()
+
 plates <- datafile |>
   excel_sheets2() |> 
   (\(.x) .x[grepl("Plate", .x)])() |> 
@@ -186,7 +201,7 @@ plates <- datafile |>
   map(~ setNames(.x, toupper(names(.x)))) |> 
   remove_empty_plates() |> 
   map(add_sample_id) |> 
-  map(~ mutate(.x, od = RESULT - mean(c_across(starts_with("BLANK")))))
+  map(manage_blanks1)
 ```
 
 ## Specific functions
@@ -538,5 +553,64 @@ with(nb_missing, plot3(DILUTION_FACTORS, total, cex = sqrt(n) / sqrt(min(n)), pc
                        xlim = c(45, 205), ylim = c(-.2, 3.3)))
 with(mean_nb_missing, lines(DILUTION_FACTORS, mean, lwd = 2, col = 2))
 add_grid()
+```
+
+
+## Negative controls
+
+A function that retrieves the negative controls from 1 plate:
+
+```{r}
+make_blanks_management2 <- function() {
+  if (discount_blank) {
+    return(function(x) mutate(x,
+                              across(starts_with("NEGATIVE"),
+                                     ~ .x - mean(c_across(starts_with("BLANK"))))))
+  }
+  I
+}
+
+manage_blanks2 <- make_blanks_management2()
+
+get_negatives_controls <- function(x) {
+  x |> 
+    manage_blanks2() |> 
+    select(starts_with("NEGATIVE")) |> 
+    unique() |> 
+    tidyr::pivot_longer(everything(), names_to = "dilution", values_to = "od") |> 
+    mutate(across(dilution, ~ stringr::str_remove(.x, "NEGATIVE_") |> as.integer()))
+}
+```
+
+Retrieving all the negative controls of all the plates and computing the
+concentrations:
+
+```{r}
+neg_contr <- plates |>
+  map_dfr(get_negatives_controls, .id = "plate") |> 
+  rowwise() |> 
+  mutate(concentration = list(exp(standard_curve(od)))) |> 
+  tidyr::unnest_wider(concentration) |> 
+  mutate(across(c(lower, median, upper), ~ .x * dilution),
+         ci_range   = upper - lower,
+         thresh0_01 = upper < .01,
+         thresh0_10 = upper < .1)
+```
+
+Selecting the best dilution for each sample and checking that the negative control are
+identified as negative:
+
+```{r}
+neg_contr |> 
+  group_by(plate) |> 
+  filter(ci_range ==min(ci_range, na.rm = TRUE)) |> 
+  ungroup() |> 
+  print_all()
+```
+
+Looking at what happens with place 7:
+
+```{r}
+filter(neg_contr, plate == "Plate_07_hcdc")
 ```
 
