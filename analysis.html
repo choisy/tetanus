@@ -570,8 +570,8 @@ window.Quarto = {
 </div>
 <p>Out of 481 samples,</p>
 <ul>
-<li>there is 1 sample (0.2 %) for which a dilution of 50 is already too much in order to estimate the lower bound of its 95% confidence interval;</li>
-<li>there are 164 samples (34.0 %) for which a dilution of 200 is not enough in order to do any estimation of the concentration.</li>
+<li>there is 2 sample (0.4 %) for which a dilution of 50 is already too much in order to estimate the lower bound of its 95% confidence interval;</li>
+<li>there are 26 samples (5.4 %) for which a dilution of 200 is not enough in order to do any estimation of the concentration.</li>
 </ul>
 <p>The number of missing estimates (point or any of tbe bounds of the confidence interval) as a function of the dilution:</p>
 <div class="cell" data-layout-align="center">
@@ -673,27 +673,27 @@ window.Quarto = {
 <pre><code># A tibble: 22 × 9
    plate      dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
    &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
- 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0399  0.00528 FALSE      TRUE      
- 2 Plate_02_…       50 1.45  0.0274 0.0298 0.0322  0.00484 FALSE      TRUE      
- 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0626  0.00741 FALSE      TRUE      
- 4 Plate_05_…       50 1.84  0.0376 0.0402 0.0431  0.00544 FALSE      TRUE      
- 5 Plate_06_…       50 1.72  0.0343 0.0368 0.0395  0.00525 FALSE      TRUE      
- 6 Plate_07_…      100 1.24  0.0444 0.0490 0.0535  0.00909 FALSE      TRUE      
- 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00459 FALSE      TRUE      
- 8 Plate_09_…       50 1.69  0.0334 0.0359 0.0385  0.00519 FALSE      TRUE      
- 9 Plate_10_…       50 1.58  0.0305 0.0329 0.0355  0.00504 FALSE      TRUE      
-10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00457 FALSE      TRUE      
-11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00416 FALSE      TRUE      
-12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00409 FALSE      TRUE      
-13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00468 FALSE      TRUE      
-14 Plate_15_…       50 0.826 0.0117 0.0139 0.0159  0.00419 FALSE      TRUE      
-15 Plate_16_…       50 0.961 0.0155 0.0175 0.0195  0.00409 FALSE      TRUE      
-16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00419 FALSE      TRUE      
-17 Plate_18_…       50 1.62  0.0315 0.0341 0.0366  0.00510 FALSE      TRUE      
-18 Plate_19_…       50 1.83  0.0372 0.0398 0.0426  0.00541 FALSE      TRUE      
-19 Plate_20_…       50 1.36  0.0252 0.0275 0.0299  0.00473 FALSE      TRUE      
-20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00485 FALSE      TRUE      
-21 Plate_22_…       50 0.847 0.0124 0.0145 0.0165  0.00413 FALSE      TRUE      
+ 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0400  0.00535 FALSE      TRUE      
+ 2 Plate_02_…       50 1.45  0.0274 0.0298 0.0323  0.00491 FALSE      TRUE      
+ 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0627  0.00752 FALSE      TRUE      
+ 4 Plate_05_…       50 1.84  0.0376 0.0403 0.0432  0.00557 FALSE      TRUE      
+ 5 Plate_06_…       50 1.72  0.0343 0.0368 0.0396  0.00532 FALSE      TRUE      
+ 6 Plate_07_…      100 1.24  0.0445 0.0490 0.0536  0.00908 FALSE      TRUE      
+ 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00460 FALSE      TRUE      
+ 8 Plate_09_…       50 1.69  0.0334 0.0359 0.0386  0.00526 FALSE      TRUE      
+ 9 Plate_10_…       50 1.58  0.0305 0.0329 0.0356  0.00510 FALSE      TRUE      
+10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00458 FALSE      TRUE      
+11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00415 FALSE      TRUE      
+12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00411 FALSE      TRUE      
+13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00471 FALSE      TRUE      
+14 Plate_15_…       50 0.826 0.0118 0.0139 0.0159  0.00419 FALSE      TRUE      
+15 Plate_16_…       50 0.961 0.0155 0.0175 0.0196  0.00411 FALSE      TRUE      
+16 Plate_17_…       50 1.04  0.0175 0.0195 0.0217  0.00419 FALSE      TRUE      
+17 Plate_18_…       50 1.62  0.0316 0.0340 0.0367  0.00517 FALSE      TRUE      
+18 Plate_19_…       50 1.83  0.0372 0.0399 0.0427  0.00553 FALSE      TRUE      
+19 Plate_20_…       50 1.36  0.0252 0.0275 0.0300  0.00478 FALSE      TRUE      
+20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00492 FALSE      TRUE      
+21 Plate_22_…       50 0.847 0.0124 0.0144 0.0165  0.00413 FALSE      TRUE      
 22 Plate_23_…       50 1.03  0.0172 0.0193 0.0214  0.00417 FALSE      TRUE      </code></pre>
 </div>
 </div>
@@ -704,9 +704,9 @@ window.Quarto = {
 <pre><code># A tibble: 3 × 9
   plate       dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
   &lt;chr&gt;          &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
-1 Plate_07_h…       50 2.70  0.0687 0.0738 0.0793  0.0106  FALSE      TRUE      
-2 Plate_07_h…      100 1.24  0.0444 0.0490 0.0535  0.00909 FALSE      TRUE      
-3 Plate_07_h…      200 0.702 0.0279 0.0407 0.0498  0.0219  FALSE      TRUE      </code></pre>
+1 Plate_07_h…       50 2.70  0.0688 0.0738 0.0794  0.0105  FALSE      TRUE      
+2 Plate_07_h…      100 1.24  0.0445 0.0490 0.0536  0.00908 FALSE      TRUE      
+3 Plate_07_h…      200 0.702 0.0275 0.0407 0.0497  0.0222  FALSE      TRUE      </code></pre>
 </div>
 </div>
 </section>

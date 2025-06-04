@@ -507,10 +507,10 @@ nb_NA |>
 
 Out of 481 samples,
 
-* there is 1 sample (0.2 %) for which a dilution of 50 is already too much in order to
+* there is 2 sample (0.4 %) for which a dilution of 50 is already too much in order to
 estimate the lower bound of its 95% confidence interval;
-* there are 164 samples (34.0 %) for which a dilution of 200 is not enough in order to
-do any estimation of the concentration.
+* there are 26 samples (5.4 %) for which a dilution of 200 is not enough in order to do
+any estimation of the concentration.
 
 The number of missing estimates (point or any of tbe bounds of the confidence interval)
 as a function of the dilution:
