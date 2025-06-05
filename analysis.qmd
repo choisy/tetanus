@@ -685,12 +685,15 @@ Plotting the anti-toxin data:
 
 ```{r fig.width = .9 * 7, margin1 = FALSE, margin5 = TRUE}
 xlim <- c(-10, -1.5)
+col_elisa <- 2
+col_luminex <- 4
+
 anti_toxins_luminex <- get_antitoxins(luminex)
 plot(unlist(xs), unlist(ys), xlim = xlim, axes = FALSE, ylab = NA, type = "n",
      xlab = "log(concentration)")
 axis(1)
-axis(2, col = 2, col.axis = 2)
-mtext("optical density", 2, line = 1.5, col = 2)
+axis(2, col = col_elisa, col.axis = col_elisa)
+mtext("optical density", 2, line = 1.5, col = col_elisa)
 walk2(xs, ys, lines2)
 
 par(new = TRUE)
@@ -701,7 +704,7 @@ anti_toxins_luminex |>
   group_by(concentration) |> 
   summarize(od = mean(od)) |> 
   with(lines(log(concentration), od, lwd = lwd_val, col = color_data))
-axis(2, line = -3, col = 4, col.axis = 4)
-mtext("median fluorescence intensity", 2, line = -1.5, col = 4)
+axis(2, line = -3, col = col_luminex, col.axis = col_luminex)
+mtext("median fluorescence intensity", 2, line = -1.5, col = col_luminex)
 ```
 
