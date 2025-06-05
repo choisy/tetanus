@@ -36,6 +36,8 @@ knitr::opts_chunk$set(margin1    = TRUE,
                       fig.width  = eps * 7) # default is 7
 ```
 
+**Warning:** `Anti_toxin` was missing on the cell `68F` of the tab `Plate_22_hcdc`.
+
 ## Parameters
 
 The concentration of the reference anti-toxin is 10 IU/mL:
@@ -70,7 +72,7 @@ datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
 Required packages:
 
 ```{r}
-required_packages <- c("dplyr", "tibble", "readxl", "purrr", "stringr", "mvtnorm")
+required_packages <- c("dplyr", "readxl", "purrr", "stringr", "mvtnorm", "readr")
 ```
 
 Installing those that are not installed:
@@ -107,8 +109,13 @@ points2 <- function(...) points(..., col = color_data, pch = 3, lwd = lwd_val)
 lines2 <- function(...) lines(..., col = color_model, lwd = lwd_val)
 print_all <- function(x) print(x, n = nrow(x))
 approx2 <- function(...) approx(..., ties = "ordered")
+
 polygon2 <- function(x, y1, y2, ...) {
   polygon(c(x, rev(x)), c(y1, rev(y2)), border = NA, ...)
+}
+
+write_delim2 <- function(x, file, ...) {
+  readr::write_delim(x, make_path(paste0("outputs/", file)), ...)
 }
 ```
 
@@ -323,8 +330,6 @@ plot_standard_curve(standard_curve_df, anti_toxins)
 
 ## Processing all the plates
 
-### The standard curves
-
 The four steps applied to all the plates:
 
 ```{r eval = FALSE}
@@ -345,6 +350,8 @@ if (file_exists("standard_curve_df.rds")) {
 standard_curves <- map(standard_curve_df, data2function)
 samples <- map2(plates, standard_curves, process_samples)
 ```
+
+### The standard curves
 
 Showing all the standard curves together:
 
@@ -401,7 +408,7 @@ walk2(dilutions, paste("Dilution", dilutions_factors), hist2)
 par(opar)
 ```
 
-### The concentrations estimates
+### Concentrations
 
 Plotting the concentration estimates per plates and dilution for all the samples:
 
@@ -512,14 +519,18 @@ with a partial 95% confidence interval.
 Let's look at the optimal dilution for each sample:
 
 ```{r warning = FALSE}
-optimal_dilutions <- samples |> 
+concentrations_estimates <- samples |> 
   bind_rows() |> 
   select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) |> 
-  mutate(across(c(lower, median, upper), exp),
-         ci_range   = upper - lower) |> 
+  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS),
+         ci_range   = upper - lower)
+
+best_estimates <- concentrations_estimates |> 
   group_by(HCDC_SAMPLE_ID) |> 
   filter(ci_range == min(ci_range, na.rm = TRUE)) |> 
-  ungroup() |> 
+  ungroup()
+
+optimal_dilutions <- best_estimates |> 
   pull(DILUTION_FACTORS) |> 
   table()
 
@@ -528,8 +539,8 @@ round(100 * optimal_dilutions / 340, 1)
 ```
 
 Meaning that, out of the 340 samples for which an estimate with confidence interval can
-be generate, 29 (8.5%) have an optimal dilution of 50, 33 (9.7%) have an optimal
-dilution of 100 and 278 (81.8%) have an optimal dilution of 200.
+be generate, 80 (23.5%) have an optimal dilution of 50, 78 (22.9%) have an optimal
+dilution of 100 and 182 (53.5%) have an optimal dilution of 200.
 
 The number of missing estimates (point or any of tbe bounds of the confidence interval)
 as a function of the dilution:
@@ -572,6 +583,15 @@ with(nb_missing, plot3(DILUTION_FACTORS, total, cex = sqrt(n) / sqrt(min(n)), pc
                        xlim = c(45, 205), ylim = c(-.2, 3.3)))
 with(mean_nb_missing, lines(DILUTION_FACTORS, mean, lwd = 2, col = 2))
 add_grid()
+```
+
+
+### Exporting the estimates
+
+```{r}
+best_estimates |> 
+  select(- ci_range) |> 
+  write_delim2("concentrations_estimates.csv")
 ```
 
 
