@@ -1,7 +1,0 @@
-Plate_22_hcdc, 68F: Anti_toxin was missing
-
-____________
-
-1. data2function approxfun()?
-2. look at the negative samples
-3. can we look at optimal dilutions?

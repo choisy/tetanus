@@ -72,14 +72,15 @@ datafile <- "Tetanus_Dr. Thinh_HCDC samples.xlsx"
 Required packages:
 
 ```{r}
-required_packages <- c("dplyr", "readxl", "purrr", "stringr", "mvtnorm", "readr")
+required_packages <- c("dplyr", "purrr", "stringr",
+                       "tidyr", "readxl", "readr", "mvtnorm")
 ```
 
 Installing those that are not installed:
 
 ```{r}
-to_inst <- required_packages[! required_packages %in% installed.packages()[,"Package"]]
-if (length(to_inst)) install.packages(to_inst)
+to_in  <- required_packages[! required_packages %in% installed.packages()[, "Package"]]
+if (length(to_in)) install.packages(to_in)
 ```
 
 Loading some for interactive use:
@@ -221,9 +222,8 @@ good_guess4PL <- function(x, y, eps = 1) {
   a <- min(y)
   d <- max(y)
   c <- approx2(y, x, (d - a) / 2)$y
-  list(a = a,
-       b = (approx2(x, y, c + eps)$y - approx2(x, y, c - eps)$y) / (2 * eps),
-       c = c, d = d)
+  list(a = a, c = c, d = d,
+       b = (approx2(x, y, c + eps)$y - approx2(x, y, c - eps)$y) / (2 * eps))
 }
 
 nls4PL <- function(df) {
@@ -269,10 +269,10 @@ A function that converts a dataframe into a function:
 ```{r}
 data2function <- function(df) {
   with(df, {
-    make_pred_function <- function(data) approxfun(data, logc)
-    pred_lwr <- make_pred_function(upper)
-    pred_mdi <- make_pred_function(median)
-    pred_upp <- make_pred_function(lower)
+    approxfun2 <- function(...) approxfun(y = logc, ...)
+    pred_lwr <- approxfun2(upper)
+    pred_mdi <- approxfun2(median)
+    pred_upp <- approxfun2(lower)
     function(x) c(lower = pred_lwr(x), median = pred_mdi(x), upper = pred_upp(x))
   })
 }
@@ -391,7 +391,6 @@ dilutions <- map_dfc(dilutions_factors,
 
 xlim <- c(-.3, 4.1)
 hist2 <- function(x, y, ...) {
-  plot_frame
   plot(unlist(ys), unlist(xs), type = "n", xaxs = "i", xlim = xlim,
      xlab = "optical density", ylab = "log(concentration)")
   walk2(ys, xs, lines2)
@@ -470,13 +469,13 @@ plot_heatmap <- function(x) {
     as.matrix() |> 
     t() |>
     format_mat() |> 
-    (\(.x) .x[, rev(seq(ncol(.x)))])() |> 
+    (\(.x) .x[, ncol(.x):1])() |> 
     (\(.x) image(1:nb_estmts, 1:(nb_smpls * nb_dltns), .x,
                  axes = FALSE, ann = FALSE, col = c(3, 7, 2)))()
   
   abline2(v = c(1.5, 2.5))
   abline2(h = seq(nb_dltns, nb_dltns * nb_smpls, nb_dltns) + .5)
-#  axis(2, seq(mean(seq(nb_dltns)), nb_dltns * nb_smpls, nb_dltns), nb_smpls:1)
+#  axis(2, seq(mean(1:nb_dltns), nb_dltns * nb_smpls, nb_dltns), nb_smpls:1)
 #  box(bty = "o")
 }
 
@@ -513,7 +512,7 @@ Out of 481 samples,
 estimate the lower bound of its 95% confidence interval;
 * there are 340 samples (70.6 %) for which the concentration can be estimated with a
 95% confidence interval.
-* and an additional 48 samples (10.0 %) for which the concentration can be estimated
+* and an additional 47 samples (9.8 %) for which the concentration can be estimated
 with a partial 95% confidence interval.
 
 Let's look at the optimal dilution for each sample:

@@ -167,12 +167,13 @@ window.Quarto = {
 <h2 data-number="2" class="anchored" data-anchor-id="packages"><span class="header-section-number">2</span> Packages</h2>
 <p>Required packages:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>required_packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"dplyr"</span>, <span class="st">"readxl"</span>, <span class="st">"purrr"</span>, <span class="st">"stringr"</span>, <span class="st">"mvtnorm"</span>, <span class="st">"readr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>required_packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"dplyr"</span>, <span class="st">"purrr"</span>, <span class="st">"stringr"</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"tidyr"</span>, <span class="st">"readxl"</span>, <span class="st">"readr"</span>, <span class="st">"mvtnorm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Installing those that are not installed:</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>to_inst <span class="ot">&lt;-</span> required_packages[<span class="sc">!</span> required_packages <span class="sc">%in%</span> <span class="fu">installed.packages</span>()[,<span class="st">"Package"</span>]]</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(to_inst)) <span class="fu">install.packages</span>(to_inst)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>to_in  <span class="ot">&lt;-</span> required_packages[<span class="sc">!</span> required_packages <span class="sc">%in%</span> <span class="fu">installed.packages</span>()[, <span class="st">"Package"</span>]]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(to_in)) <span class="fu">install.packages</span>(to_in)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Loading some for interactive use:</p>
 <div class="cell" data-layout-align="center">
@@ -293,15 +294,14 @@ window.Quarto = {
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">min</span>(y)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">max</span>(y)</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  c <span class="ot">&lt;-</span> <span class="fu">approx2</span>(y, x, (d <span class="sc">-</span> a) <span class="sc">/</span> <span class="dv">2</span>)<span class="sc">$</span>y</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a =</span> a,</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">b =</span> (<span class="fu">approx2</span>(x, y, c <span class="sc">+</span> eps)<span class="sc">$</span>y <span class="sc">-</span> <span class="fu">approx2</span>(x, y, c <span class="sc">-</span> eps)<span class="sc">$</span>y) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> eps),</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">c =</span> c, <span class="at">d =</span> d)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>nls4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nls</span>(RESULT <span class="sc">~</span> d <span class="sc">+</span> (a <span class="sc">-</span> d) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>((<span class="fu">log</span>(concentration) <span class="sc">-</span> c) <span class="sc">*</span> b)),</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>      df, <span class="fu">with</span>(df, <span class="fu">good_guess4PL</span>(<span class="fu">log</span>(concentration), RESULT)))</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">a =</span> a, <span class="at">c =</span> c, <span class="at">d =</span> d,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">b =</span> (<span class="fu">approx2</span>(x, y, c <span class="sc">+</span> eps)<span class="sc">$</span>y <span class="sc">-</span> <span class="fu">approx2</span>(x, y, c <span class="sc">-</span> eps)<span class="sc">$</span>y) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> eps))</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>nls4PL <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nls</span>(RESULT <span class="sc">~</span> d <span class="sc">+</span> (a <span class="sc">-</span> d) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>((<span class="fu">log</span>(concentration) <span class="sc">-</span> c) <span class="sc">*</span> b)),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      df, <span class="fu">with</span>(df, <span class="fu">good_guess4PL</span>(<span class="fu">log</span>(concentration), RESULT)))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>A function that generates the standard curve with confidence interval in the form of a dataframe:</p>
 <div class="cell" data-layout-align="center">
@@ -334,10 +334,10 @@ window.Quarto = {
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data2function <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(df, {</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    make_pred_function <span class="ot">&lt;-</span> <span class="cf">function</span>(data) <span class="fu">approxfun</span>(data, logc)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    pred_lwr <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(upper)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    pred_mdi <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(median)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    pred_upp <span class="ot">&lt;-</span> <span class="fu">make_pred_function</span>(lower)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    approxfun2 <span class="ot">&lt;-</span> <span class="cf">function</span>(...) <span class="fu">approxfun</span>(<span class="at">y =</span> logc, ...)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    pred_lwr <span class="ot">&lt;-</span> <span class="fu">approxfun2</span>(upper)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    pred_mdi <span class="ot">&lt;-</span> <span class="fu">approxfun2</span>(median)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    pred_upp <span class="ot">&lt;-</span> <span class="fu">approxfun2</span>(lower)</span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="at">lower =</span> <span class="fu">pred_lwr</span>(x), <span class="at">median =</span> <span class="fu">pred_mdi</span>(x), <span class="at">upper =</span> <span class="fu">pred_upp</span>(x))</span>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -452,20 +452,19 @@ window.Quarto = {
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>xlim <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">3</span>, <span class="fl">4.1</span>)</span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>hist2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, ...) {</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  plot_frame</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">unlist</span>(ys), <span class="fu">unlist</span>(xs), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xaxs =</span> <span class="st">"i"</span>, <span class="at">xlim =</span> xlim,</span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"optical density"</span>, <span class="at">ylab =</span> <span class="st">"log(concentration)"</span>)</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk2</span>(ys, xs, lines2)</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(x, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, .<span class="dv">1</span>), <span class="at">col =</span> color_data, <span class="at">xaxs =</span> <span class="st">"i"</span>,</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">ann =</span> <span class="cn">FALSE</span>, <span class="at">xlim =</span> xlim, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">300</span>), , ...)</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">4</span>); <span class="fu">mtext</span>(<span class="st">"number of samples"</span>, <span class="dv">4</span>, <span class="fl">1.5</span>)</span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(.<span class="dv">8</span>, <span class="fl">3.8</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mtext</span>(y, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>opar <span class="ot">&lt;-</span> <span class="fu">par_mfrow</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>))</span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="fu">walk2</span>(dilutions, <span class="fu">paste</span>(<span class="st">"Dilution"</span>, dilutions_factors), hist2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">unlist</span>(ys), <span class="fu">unlist</span>(xs), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xaxs =</span> <span class="st">"i"</span>, <span class="at">xlim =</span> xlim,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"optical density"</span>, <span class="at">ylab =</span> <span class="st">"log(concentration)"</span>)</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">walk2</span>(ys, xs, lines2)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">new =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">hist</span>(x, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">4</span>, .<span class="dv">1</span>), <span class="at">col =</span> color_data, <span class="at">xaxs =</span> <span class="st">"i"</span>,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">ann =</span> <span class="cn">FALSE</span>, <span class="at">xlim =</span> xlim, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">300</span>), , ...)</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">axis</span>(<span class="dv">4</span>); <span class="fu">mtext</span>(<span class="st">"number of samples"</span>, <span class="dv">4</span>, <span class="fl">1.5</span>)</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(.<span class="dv">8</span>, <span class="fl">3.8</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mtext</span>(y, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="at">font =</span> <span class="dv">2</span>)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>opar <span class="ot">&lt;-</span> <span class="fu">par_mfrow</span>(<span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="fu">walk2</span>(dilutions, <span class="fu">paste</span>(<span class="st">"Dilution"</span>, dilutions_factors), hist2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -537,13 +536,13 @@ window.Quarto = {
 <span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>() <span class="sc">|&gt;</span></span>
 <span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format_mat</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    (\(.x) .x[, <span class="fu">rev</span>(<span class="fu">seq</span>(<span class="fu">ncol</span>(.x)))])() <span class="sc">|&gt;</span> </span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    (\(.x) .x[, <span class="fu">ncol</span>(.x)<span class="sc">:</span><span class="dv">1</span>])() <span class="sc">|&gt;</span> </span>
 <span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    (\(.x) <span class="fu">image</span>(<span class="dv">1</span><span class="sc">:</span>nb_estmts, <span class="dv">1</span><span class="sc">:</span>(nb_smpls <span class="sc">*</span> nb_dltns), .x,</span>
 <span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>                 <span class="at">axes =</span> <span class="cn">FALSE</span>, <span class="at">ann =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">2</span>)))()</span>
 <span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline2</span>(<span class="at">v =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">2.5</span>))</span>
 <span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline2</span>(<span class="at">h =</span> <span class="fu">seq</span>(nb_dltns, nb_dltns <span class="sc">*</span> nb_smpls, nb_dltns) <span class="sc">+</span> .<span class="dv">5</span>)</span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="co">#  axis(2, seq(mean(seq(nb_dltns)), nb_dltns * nb_smpls, nb_dltns), nb_smpls:1)</span></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="co">#  axis(2, seq(mean(1:nb_dltns), nb_dltns * nb_smpls, nb_dltns), nb_smpls:1)</span></span>
 <span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a><span class="co">#  box(bty = "o")</span></span>
 <span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a></span>
@@ -587,7 +586,7 @@ window.Quarto = {
 <ul>
 <li>there are 2 sample (0.4 %) for which a dilution of 50 is already too much in order to estimate the lower bound of its 95% confidence interval;</li>
 <li>there are 340 samples (70.6 %) for which the concentration can be estimated with a 95% confidence interval.</li>
-<li>and an additional 48 samples (10.0 %) for which the concentration can be estimated with a partial 95% confidence interval.</li>
+<li>and an additional 47 samples (9.8 %) for which the concentration can be estimated with a partial 95% confidence interval.</li>
 </ul>
 <p>Let’s look at the optimal dilution for each sample:</p>
 <div class="cell" data-layout-align="center">
@@ -717,28 +716,28 @@ window.Quarto = {
 <pre><code># A tibble: 22 × 9
    plate      dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
    &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
- 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0400  0.00535 FALSE      TRUE      
- 2 Plate_02_…       50 1.45  0.0273 0.0298 0.0322  0.00492 FALSE      TRUE      
- 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0626  0.00741 FALSE      TRUE      
- 4 Plate_05_…       50 1.84  0.0376 0.0403 0.0432  0.00554 FALSE      TRUE      
- 5 Plate_06_…       50 1.72  0.0343 0.0369 0.0396  0.00533 FALSE      TRUE      
- 6 Plate_07_…      100 1.24  0.0444 0.0490 0.0535  0.00909 FALSE      TRUE      
- 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00461 FALSE      TRUE      
- 8 Plate_09_…       50 1.69  0.0334 0.0359 0.0386  0.00526 FALSE      TRUE      
- 9 Plate_10_…       50 1.58  0.0304 0.0329 0.0355  0.00510 FALSE      TRUE      
-10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00459 FALSE      TRUE      
-11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00413 FALSE      TRUE      
+ 1 Plate_01_…       50 1.74  0.0347 0.0372 0.0400  0.00531 FALSE      TRUE      
+ 2 Plate_02_…       50 1.45  0.0273 0.0298 0.0323  0.00494 FALSE      TRUE      
+ 3 Plate_03_…       50 2.39  0.0553 0.0589 0.0627  0.00737 FALSE      TRUE      
+ 4 Plate_05_…       50 1.84  0.0376 0.0403 0.0432  0.00550 FALSE      TRUE      
+ 5 Plate_06_…       50 1.72  0.0343 0.0369 0.0396  0.00529 FALSE      TRUE      
+ 6 Plate_07_…      100 1.24  0.0444 0.0490 0.0535  0.00919 FALSE      TRUE      
+ 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00466 FALSE      TRUE      
+ 8 Plate_09_…       50 1.69  0.0334 0.0359 0.0386  0.00524 FALSE      TRUE      
+ 9 Plate_10_…       50 1.58  0.0304 0.0329 0.0356  0.00511 FALSE      TRUE      
+10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00463 FALSE      TRUE      
+11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00414 FALSE      TRUE      
 12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00407 FALSE      TRUE      
-13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00473 FALSE      TRUE      
-14 Plate_15_…       50 0.826 0.0118 0.0139 0.0159  0.00416 FALSE      TRUE      
-15 Plate_16_…       50 0.961 0.0155 0.0175 0.0195  0.00407 FALSE      TRUE      
-16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00421 FALSE      TRUE      
+13 Plate_14_…       50 1.33  0.0243 0.0268 0.0291  0.00477 FALSE      TRUE      
+14 Plate_15_…       50 0.826 0.0117 0.0139 0.0159  0.00417 FALSE      TRUE      
+15 Plate_16_…       50 0.961 0.0154 0.0175 0.0195  0.00410 FALSE      TRUE      
+16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00423 FALSE      TRUE      
 17 Plate_18_…       50 1.62  0.0316 0.0341 0.0367  0.00515 FALSE      TRUE      
-18 Plate_19_…       50 1.83  0.0372 0.0399 0.0427  0.00551 FALSE      TRUE      
-19 Plate_20_…       50 1.36  0.0252 0.0275 0.0299  0.00478 FALSE      TRUE      
-20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00493 FALSE      TRUE      
-21 Plate_22_…       50 0.847 0.0124 0.0145 0.0165  0.00411 FALSE      TRUE      
-22 Plate_23_…       50 1.03  0.0172 0.0193 0.0214  0.00419 FALSE      TRUE      </code></pre>
+18 Plate_19_…       50 1.83  0.0373 0.0399 0.0427  0.00547 FALSE      TRUE      
+19 Plate_20_…       50 1.36  0.0251 0.0275 0.0299  0.00481 FALSE      TRUE      
+20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00495 FALSE      TRUE      
+21 Plate_22_…       50 0.847 0.0124 0.0144 0.0165  0.00411 FALSE      TRUE      
+22 Plate_23_…       50 1.03  0.0171 0.0193 0.0213  0.00420 FALSE      TRUE      </code></pre>
 </div>
 </div>
 <p>Looking at what happens with plate 7:</p>
@@ -748,9 +747,9 @@ window.Quarto = {
 <pre><code># A tibble: 3 × 9
   plate       dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
   &lt;chr&gt;          &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
-1 Plate_07_h…       50 2.70  0.0689 0.0738 0.0793  0.0105  FALSE      TRUE      
-2 Plate_07_h…      100 1.24  0.0444 0.0490 0.0535  0.00909 FALSE      TRUE      
-3 Plate_07_h…      200 0.702 0.0280 0.0408 0.0498  0.0218  FALSE      TRUE      </code></pre>
+1 Plate_07_h…       50 2.70  0.0690 0.0739 0.0793  0.0103  FALSE      TRUE      
+2 Plate_07_h…      100 1.24  0.0444 0.0490 0.0535  0.00919 FALSE      TRUE      
+3 Plate_07_h…      200 0.702 0.0277 0.0406 0.0496  0.0219  FALSE      TRUE      </code></pre>
 </div>
 </div>
 </section>
