@@ -634,9 +634,4 @@ neg_contr |>
   print_all()
 ```
 
-Looking at what happens with plate 7:
-
-```{r}
-filter(neg_contr, plate == "Plate_07_hcdc")
-```
 
