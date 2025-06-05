@@ -634,4 +634,36 @@ neg_contr |>
   print_all()
 ```
 
+## New dilutions
+
+Loading the data:
+
+```{r}
+test <- readxl::read_excel(paste0(path2data,
+                                  "Tetanus_Mr. Thanh FORMAT_TESTING STAFF.xlsx")) |> 
+  mutate(od = RESULT)
+```
+
+Calibrating the standard curve:
+
+```{r}
+anti_toxins_test <- get_antitoxins(test)
+standard_curve_df_test <- standard_curve_data(anti_toxins_test, nls4PL)
+standard_curve_test <- data2function(standard_curve_df_test)
+samples_test <- process_samples(test, standard_curve_test)
+plot_standard_curve(standard_curve_df_test, anti_toxins_test)
+```
+
+Estimating samples concentrations:
+
+```{r warning = FALSE}
+samples_test |> 
+  select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) |> 
+  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS),
+         ci_range   = upper - lower) |>
+  group_by(HCDC_SAMPLE_ID) |> 
+  filter(ci_range == min(ci_range, na.rm = TRUE)) |> 
+  ungroup() |> 
+  select(- ci_range)
+```
 

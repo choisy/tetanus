@@ -121,6 +121,7 @@ window.Quarto = {
   <li><a href="#exporting-the-estimates" id="toc-exporting-the-estimates" class="nav-link" data-scroll-target="#exporting-the-estimates"><span class="header-section-number">6.4</span> Exporting the estimates</a></li>
   </ul></li>
   <li><a href="#negative-controls" id="toc-negative-controls" class="nav-link" data-scroll-target="#negative-controls"><span class="header-section-number">7</span> Negative controls</a></li>
+  <li><a href="#new-dilutions" id="toc-new-dilutions" class="nav-link" data-scroll-target="#new-dilutions"><span class="header-section-number">8</span> New dilutions</a></li>
   </ul>
 </nav>
 </div>
@@ -716,28 +717,72 @@ window.Quarto = {
 <pre><code># A tibble: 22 × 9
    plate      dilution    od  lower median  upper ci_range thresh0_01 thresh0_10
    &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;lgl&gt;      &lt;lgl&gt;     
- 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0399  0.00533 FALSE      TRUE      
- 2 Plate_02_…       50 1.45  0.0273 0.0298 0.0323  0.00497 FALSE      TRUE      
- 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0626  0.00735 FALSE      TRUE      
- 4 Plate_05_…       50 1.84  0.0376 0.0403 0.0431  0.00549 FALSE      TRUE      
- 5 Plate_06_…       50 1.72  0.0343 0.0369 0.0396  0.00531 FALSE      TRUE      
- 6 Plate_07_…      100 1.24  0.0443 0.0490 0.0536  0.00927 FALSE      TRUE      
- 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00468 FALSE      TRUE      
- 8 Plate_09_…       50 1.69  0.0333 0.0359 0.0386  0.00527 FALSE      TRUE      
- 9 Plate_10_…       50 1.58  0.0304 0.0329 0.0356  0.00514 FALSE      TRUE      
-10 Plate_11_…       50 1.26  0.0225 0.0249 0.0272  0.00467 FALSE      TRUE      
-11 Plate_12_…       50 0.837 0.0121 0.0142 0.0162  0.00418 FALSE      TRUE      
-12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00413 FALSE      TRUE      
-13 Plate_14_…       50 1.33  0.0243 0.0268 0.0291  0.00478 FALSE      TRUE      
-14 Plate_15_…       50 0.826 0.0117 0.0139 0.0159  0.00421 FALSE      TRUE      
-15 Plate_16_…       50 0.961 0.0154 0.0175 0.0195  0.00414 FALSE      TRUE      
-16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00425 FALSE      TRUE      
-17 Plate_18_…       50 1.62  0.0315 0.0341 0.0367  0.00518 FALSE      TRUE      
-18 Plate_19_…       50 1.83  0.0372 0.0399 0.0427  0.00547 FALSE      TRUE      
-19 Plate_20_…       50 1.36  0.0251 0.0276 0.0299  0.00482 FALSE      TRUE      
-20 Plate_21_…       50 1.46  0.0274 0.0299 0.0324  0.00499 FALSE      TRUE      
-21 Plate_22_…       50 0.847 0.0124 0.0145 0.0165  0.00415 FALSE      TRUE      
-22 Plate_23_…       50 1.03  0.0171 0.0193 0.0214  0.00424 FALSE      TRUE      </code></pre>
+ 1 Plate_01_…       50 1.74  0.0346 0.0372 0.0399  0.00534 FALSE      TRUE      
+ 2 Plate_02_…       50 1.45  0.0273 0.0297 0.0322  0.00489 FALSE      TRUE      
+ 3 Plate_03_…       50 2.39  0.0552 0.0588 0.0626  0.00746 FALSE      TRUE      
+ 4 Plate_05_…       50 1.84  0.0376 0.0402 0.0431  0.00548 FALSE      TRUE      
+ 5 Plate_06_…       50 1.72  0.0343 0.0368 0.0396  0.00531 FALSE      TRUE      
+ 6 Plate_07_…      100 1.24  0.0444 0.0489 0.0535  0.00911 FALSE      TRUE      
+ 7 Plate_08_…       50 1.27  0.0229 0.0252 0.0275  0.00461 FALSE      TRUE      
+ 8 Plate_09_…       50 1.69  0.0333 0.0359 0.0386  0.00526 FALSE      TRUE      
+ 9 Plate_10_…       50 1.58  0.0304 0.0329 0.0355  0.00510 FALSE      TRUE      
+10 Plate_11_…       50 1.26  0.0226 0.0249 0.0272  0.00458 FALSE      TRUE      
+11 Plate_12_…       50 0.837 0.0120 0.0142 0.0162  0.00416 FALSE      TRUE      
+12 Plate_13_…       50 0.866 0.0129 0.0150 0.0170  0.00411 FALSE      TRUE      
+13 Plate_14_…       50 1.33  0.0244 0.0267 0.0291  0.00471 FALSE      TRUE      
+14 Plate_15_…       50 0.826 0.0117 0.0139 0.0159  0.00419 FALSE      TRUE      
+15 Plate_16_…       50 0.961 0.0154 0.0175 0.0195  0.00409 FALSE      TRUE      
+16 Plate_17_…       50 1.04  0.0174 0.0195 0.0216  0.00419 FALSE      TRUE      
+17 Plate_18_…       50 1.62  0.0315 0.0340 0.0367  0.00517 FALSE      TRUE      
+18 Plate_19_…       50 1.83  0.0372 0.0398 0.0427  0.00546 FALSE      TRUE      
+19 Plate_20_…       50 1.36  0.0251 0.0275 0.0299  0.00476 FALSE      TRUE      
+20 Plate_21_…       50 1.46  0.0275 0.0299 0.0324  0.00490 FALSE      TRUE      
+21 Plate_22_…       50 0.847 0.0123 0.0144 0.0165  0.00413 FALSE      TRUE      
+22 Plate_23_…       50 1.03  0.0172 0.0193 0.0213  0.00416 FALSE      TRUE      </code></pre>
+</div>
+</div>
+</section>
+<section id="new-dilutions" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="new-dilutions"><span class="header-section-number">8</span> New dilutions</h2>
+<p>Loading the data:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="fu">paste0</span>(path2data,</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"Tetanus_Mr. Thanh FORMAT_TESTING STAFF.xlsx"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">od =</span> RESULT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Calibrating the standard curve:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>anti_toxins_test <span class="ot">&lt;-</span> <span class="fu">get_antitoxins</span>(test)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>standard_curve_df_test <span class="ot">&lt;-</span> <span class="fu">standard_curve_data</span>(anti_toxins_test, nls4PL)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>standard_curve_test <span class="ot">&lt;-</span> <span class="fu">data2function</span>(standard_curve_df_test)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>samples_test <span class="ot">&lt;-</span> <span class="fu">process_samples</span>(test, standard_curve_test)</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_standard_curve</span>(standard_curve_df_test, anti_toxins_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="analysis_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="537"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Estimating samples concentrations:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>samples_test <span class="sc">|&gt;</span> </span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) <span class="sc">|&gt;</span> </span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(lower, median, upper), <span class="sc">~</span> <span class="fu">exp</span>(.x) <span class="sc">*</span> DILUTION_FACTORS),</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">ci_range   =</span> upper <span class="sc">-</span> lower) <span class="sc">|&gt;</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(HCDC_SAMPLE_ID) <span class="sc">|&gt;</span> </span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ci_range <span class="sc">==</span> <span class="fu">min</span>(ci_range, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span> ci_range)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 6
+  HCDC_SAMPLE_ID DILUTION_FACTORS RESULT  lower median  upper
+  &lt;chr&gt;                     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1 S1_A                        400   3.16 0.812  0.857  0.909 
+2 S2_H                        200   3.89 1.49   1.81   2.38  
+3 S5_TR                       100   1.47 0.0588 0.0620 0.0652
+4 S6_NC                        50   3.68 0.194  0.212  0.235 </code></pre>
 </div>
 </div>
 </section>
