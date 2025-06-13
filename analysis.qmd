@@ -22,7 +22,7 @@ knitr::knit_hooks$set(
     if (before) par2(plt = c(.17, .97, .23, .95)) else NULL
   },
   margin3 = function(before, options, envir) {
-    if (before) par2(plt = c(.12, .88, .2, .99)) else NULL
+    if (before) par2(plt = c(.13, .88, .2, .99)) else NULL
   },
   margin4 = function(before, options, envir) {
     if (before) par2(plt = c(.11, .99, .01, .8)) else NULL
@@ -47,6 +47,12 @@ The concentration of the reference anti-toxin is 10 IU/mL:
 
 ```{r}
 ref_conc <- 10
+```
+
+The threshold for positivity (in IU/mL):
+
+```{r}
+positive_threshold <- .1
 ```
 
 The path to the data:
@@ -126,8 +132,11 @@ write_delim2 <- function(x, file, ...) {
 A function that draws the frame of a plot:
 
 ```{r}
+log_concentration_lab <- bquote(log[10](concentration))
+
 plot_frame <- function(...) {
-  plot(..., type = "n", xlab = "log(concentration)", ylab = "optical density")
+  plot(..., type = "n",
+       xlab = log_concentration_lab, ylab = "optical density")
 }
 ```
 
@@ -204,7 +213,7 @@ A 4-parameter logistic model that relates optical density $\mbox{OD}$ to the log
 of the concentration $\mbox{LC}$:
 
 $$
-\mbox{OD} = d + \frac{a - d}{1 + e^{\left(\mbox{LC} - c\right)b}}
+\mbox{OD} = d + \frac{a - d}{1 + 10^{\left(\mbox{LC} - c\right)b}}
 $$
 
 where:
@@ -217,7 +226,7 @@ where:
 Two functions that implement the calibration of a 4PL model:
 
 ```{r}
-good_guess4PL <- function(x, y, eps = 1) {
+good_guess4PL <- function(x, y, eps = .3) {
   nb_rep <- unique(table(x))
   the_order <- order(x)
   x <- x[the_order]
@@ -230,8 +239,8 @@ good_guess4PL <- function(x, y, eps = 1) {
 }
 
 nls4PL <- function(df) {
-  nls(RESULT ~ d + (a - d) / (1 + exp((log(concentration) - c) * b)),
-      df, with(df, good_guess4PL(log(concentration), RESULT)))
+  nls(RESULT ~ d + (a - d) / (1 + 10^((log10(concentration) - c) * b)),
+      df, with(df, good_guess4PL(log10(concentration), RESULT)))
 }
 ```
 
@@ -240,12 +249,12 @@ dataframe:
 
 ```{r}
 standard_curve_data <- function(df, model, le = 512, level = .95, nb = 9999) {
-  log_concentration <- log(df$concentration)
+  log_concentration <- log10(df$concentration)
   logc <- seq(min(log_concentration), max(log_concentration), le = le)
   alpha <- (1 - level) / 2
   df |> 
     model() |> 
-    simulate_nls(list(concentration = exp(logc)), nb) |> 
+    simulate_nls(list(concentration = 10^logc), nb) |> 
     apply(1, quantile, c(alpha, .5, 1 - alpha)) |>
     t() |> as.data.frame() |> 
     setNames(c("lower", "median", "upper")) |> 
@@ -263,7 +272,7 @@ plot_standard_curve <- function(scdf, data = NULL, ylim = NULL) {
     polygon2(logc, lower, upper, col = adjustcolor(color_model, .2))
     lines2(logc, median)
   })
-  if (! is.null(data)) with(data, points2(log(concentration), RESULT))
+  if (! is.null(data)) with(data, points2(log10(concentration), RESULT))
 }
 ```
 
@@ -326,14 +335,20 @@ samples <- process_samples(plate, standard_curve)
 The plots of the standard curve, with and without data:
 
 ```{r}
-plot_standard_curve(standard_curve_df)
-plot_standard_curve(standard_curve_df, anti_toxins)
+dilutions_factors <- unique(samples$DILUTION_FACTORS)
+add_dilutions <- function() {
+  abline(v = log10(positive_threshold / c(1, dilutions_factors)),
+         lwd = lwd_val, col = 3)
+}
+
+plot_standard_curve(standard_curve_df); add_dilutions()
+plot_standard_curve(standard_curve_df, anti_toxins); add_dilutions()
 ```
 
 
 ## Processing all the plates
 
-The four steps applied to all the plates:
+The four steps applied to all the plates (takes about 30"):
 
 ```{r eval = FALSE}
 anti_toxins <- map(plates, get_antitoxins)
@@ -363,7 +378,7 @@ xs <- map(standard_curve_df, ~ .x$logc)
 ys <- map(standard_curve_df, ~ .x$median)
 plot_frame(unlist(xs), unlist(ys))
 walk2(xs, ys, lines2)
-abline(v = log(.1 / c(1, 50, 100, 200)), lwd = lwd_val, col = color_data)
+add_dilutions()
 ```
 
 Showing the standard curves and data points, plate by plate:
@@ -377,7 +392,7 @@ titles <- anti_toxins |>
 opar <- par_mfrow(c(8, 3))
 walk(seq_along(anti_toxins), function(i) {
   plot_standard_curve(standard_curve_df[[i]], anti_toxins[[i]], ylim = c(- .2, 4))
-  mtext(titles[i], line = -4, at = -4)
+  mtext(titles[i], line = -4, at = -1.5)
 })
 par(opar)
 ```
@@ -386,7 +401,6 @@ Showing the distributions of the ODs for the 3 dilutions, across the plates, tog
 with the standard curves:
 
 ```{r fig.width = 4, fig.height = 7.5, margin1 = FALSE, margin3 = TRUE, message = FALSE}
-dilutions_factors <- c(50, 100, 200)
 dilutions <- map_dfc(dilutions_factors,
     function(x) map(samples, ~ .x |>
                                filter(DILUTION_FACTORS == x) |> 
@@ -395,7 +409,7 @@ dilutions <- map_dfc(dilutions_factors,
 xlim <- c(-.3, 4.1)
 hist2 <- function(x, y, ...) {
   plot(unlist(ys), unlist(xs), type = "n", xaxs = "i", xlim = xlim,
-     xlab = "optical density", ylab = "log(concentration)")
+     xlab = "optical density", ylab = bquote(log[10](concentration)))
   walk2(ys, xs, lines2)
   par(new = TRUE)
   hist(x, breaks = seq(0, 4, .1), col = color_data, xaxs = "i",
@@ -425,7 +439,7 @@ plot_concentrations <- function(x) {
                         nb_replicates + 1)
   xs <- tmp[-vertical_lines]
   x |> 
-    mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS)) |> 
+    mutate(across(c(lower, median, upper), ~ 10^.x * DILUTION_FACTORS)) |> 
     with({
       plot(xs, median, col = colors, lwd = lwd_val,
            ylim = c(0, max(median, upper, na.rm = TRUE)),
@@ -434,6 +448,7 @@ plot_concentrations <- function(x) {
       segments(xs, lower, xs, upper, col = colors, lwd = lwd_val)
     })
   abline(v = vertical_lines, col = "grey")
+  abline(h = .1, col = "grey")
 }
 
 opar <- par_mfrow(c(11, 2))
@@ -478,14 +493,16 @@ plot_heatmap <- function(x) {
   
   abline2(v = c(1.5, 2.5))
   abline2(h = seq(nb_dltns, nb_dltns * nb_smpls, nb_dltns) + .5)
-#  axis(2, seq(mean(1:nb_dltns), nb_dltns * nb_smpls, nb_dltns), nb_smpls:1)
-#  box(bty = "o")
 }
 
 opar <- par(mfrow = c(1, 22))
 walk(samples, plot_heatmap)
 par(opar)
 ```
+
+This is how to interprete the above figure:
+
+![](explanations.png){width=350}
 
 Number of samples for which a concentration can be estimated:
 
@@ -524,7 +541,7 @@ Let's look at the optimal dilution for each sample:
 concentrations_estimates <- samples |> 
   bind_rows() |> 
   select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) |> 
-  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS),
+  mutate(across(c(lower, median, upper), ~ DILUTION_FACTORS * 10^.x),
          ci_range   = upper - lower)
 
 best_estimates <- concentrations_estimates |> 
@@ -543,6 +560,23 @@ round(100 * optimal_dilutions / 340, 1)
 Meaning that, out of the 340 samples for which an estimate with confidence interval can
 be generate, 80 (23.5%) have an optimal dilution of 50, 78 (22.9%) have an optimal
 dilution of 100 and 182 (53.5%) have an optimal dilution of 200.
+
+The estimates with the full confidence interval:
+
+```{r}
+ticks <- 1:nrow(best_estimates)
+with(best_estimates,
+     plot(ticks, median, ylim = c(0, max(upper)), type = "n", axes = FALSE, xlab = NA,
+          ylab = "concentration (UI/mL)"))
+axis(2)
+abline(h = .1, col = "grey")
+
+best_estimates |> 
+  arrange(median, ci_range) |> 
+  with({
+    segments(ticks, lower, ticks, upper)
+  })
+```
 
 The number of missing estimates (point or any of tbe bounds of the confidence interval)
 as a function of the dilution:
@@ -618,12 +652,11 @@ concentrations:
 neg_contr <- plates |>
   map_dfr(get_negatives_controls, .id = "plate") |> 
   rowwise() |> 
-  mutate(concentration = list(exp(standard_curve(od)))) |> 
+  mutate(concentration = list(10^standard_curve(od))) |> 
   tidyr::unnest_wider(concentration) |> 
   mutate(across(c(lower, median, upper), ~ .x * dilution),
-         ci_range   = upper - lower,
-         thresh0_01 = upper < .01,
-         thresh0_10 = upper < .1)
+         ci_range = upper - lower,
+         positive = ! upper < positive_threshold)
 ```
 
 Selecting the best dilution for each sample and checking that the negative control are
@@ -655,6 +688,7 @@ standard_curve_df_test <- standard_curve_data(anti_toxins_test, nls4PL)
 standard_curve_test <- data2function(standard_curve_df_test)
 samples_test <- process_samples(test, standard_curve_test)
 plot_standard_curve(standard_curve_df_test, anti_toxins_test)
+add_dilutions()
 ```
 
 Estimating samples concentrations:
@@ -662,7 +696,7 @@ Estimating samples concentrations:
 ```{r warning = FALSE}
 samples_test |> 
   select(HCDC_SAMPLE_ID, DILUTION_FACTORS, RESULT, lower, median, upper) |> 
-  mutate(across(c(lower, median, upper), ~ exp(.x) * DILUTION_FACTORS),
+  mutate(across(c(lower, median, upper), ~ DILUTION_FACTORS * 10^.x),
          ci_range   = upper - lower) |>
   group_by(HCDC_SAMPLE_ID) |> 
   filter(ci_range == min(ci_range, na.rm = TRUE)) |> 
@@ -681,16 +715,22 @@ luminex <- readxl::read_excel(paste0(path2data,
          HCDC_SAMPLE_ID = Sample)
 ```
 
+The dilutions are the following:
+
+```{r}
+sort(unique(luminex$DILUTION_FACTORS))
+```
+
 Plotting the anti-toxin data:
 
 ```{r fig.width = .9 * 7, margin1 = FALSE, margin5 = TRUE}
-xlim <- c(-10, -1.5)
+xlim <- c(-4.4, -.75)
 col_elisa <- 2
 col_luminex <- 4
 
 anti_toxins_luminex <- get_antitoxins(luminex)
 plot(unlist(xs), unlist(ys), xlim = xlim, axes = FALSE, ylab = NA, type = "n",
-     xlab = "log(concentration)")
+     xlab = bquote(log[10](concentration)))
 axis(1)
 axis(2, col = col_elisa, col.axis = col_elisa)
 mtext("optical density", 2, line = 1.5, col = col_elisa)
@@ -698,13 +738,46 @@ walk2(xs, ys, lines2)
 
 par(new = TRUE)
 with(anti_toxins_luminex,
-     plot2(log(concentration), od, ylab = "MFI", xlim = xlim, lwd = lwd_val,
+     plot2(log10(concentration), od, ylab = "MFI", xlim = xlim, lwd = lwd_val,
            axes = FALSE, ann = FALSE))
 anti_toxins_luminex |> 
   group_by(concentration) |> 
   summarize(od = mean(od)) |> 
-  with(lines(log(concentration), od, lwd = lwd_val, col = color_data))
+  with(lines(log10(concentration), od, lwd = lwd_val, col = color_data))
 axis(2, line = -3, col = col_luminex, col.axis = col_luminex)
 mtext("median fluorescence intensity", 2, line = -1.5, col = col_luminex)
+
+add_dilutions();
+abline(v = log10(positive_threshold / 25), col = "grey", lwd = lwd_val)
+```
+
+### Selection of samples
+
+```{r}
+high_concentrations <- samples |> 
+  bind_rows() |> 
+  arrange(desc(lower)) |> 
+  pull(HCDC_SAMPLE_ID) |> 
+  unique() |> 
+  head(10)
+
+low_concentrations <- samples |> 
+  bind_rows() |> 
+  arrange(upper) |> 
+  pull(HCDC_SAMPLE_ID) |> 
+  unique() |> 
+  head(10)
+```
+
+A selection of high concentration samples:
+
+```{r}
+high_concentrations
+```
+
+A selection of low concentration samples:
+
+```{r}
+low_concentrations
 ```
 
